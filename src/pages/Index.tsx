@@ -3,7 +3,7 @@ import { Play, StopCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Header } from '@/components/Header';
+import { DashboardLayout } from '@/components/DashboardLayout';
 import { FileUpload } from '@/components/FileUpload';
 import { DataPreview } from '@/components/DataPreview';
 import { SearchForm } from '@/components/SearchForm';
@@ -122,10 +122,16 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="container py-8">
+    <DashboardLayout>
+      <div className="space-y-6">
+        {/* Page Header */}
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+          <p className="text-sm text-muted-foreground">
+            Upload your Excel file and start searching across multiple databases
+          </p>
+        </div>
+
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Left Sidebar */}
           <div className="space-y-6">
@@ -182,8 +188,8 @@ const Index = () => {
             </Tabs>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 };
 
