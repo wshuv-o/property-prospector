@@ -18,12 +18,7 @@ export function FileUpload({ onDataParsed }: FileUploadProps) {
     const lines = text.trim().split('\n');
     if (lines.length < 2) throw new Error('File must have at least a header and one data row');
 
-    const header = lines[0].toLowerCase();
-    const hasAddress = header.includes('address');
-    const hasName = header.includes('name');
-
-    if (!hasAddress) throw new Error('File must have an "Address" column');
-
+    // Skip header row, just use first column as address, second as name
     return lines.slice(1).map((line, index) => {
       const columns = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(col => 
         col.replace(/^"|"$/g, '').trim()
