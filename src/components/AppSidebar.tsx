@@ -30,8 +30,8 @@ const settingsItems = [
 
 export function AppSidebar() {
   return (
-    <Sidebar className="border-r">
-      <SidebarHeader className="p-4 border-b">
+    <Sidebar className="border-r border-border/40">
+      <SidebarHeader className="p-4 border-b border-border/40">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
@@ -98,7 +98,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 border-t">
+      <SidebarFooter className="p-4 border-t border-border/40">
         <SystemStatus />
       </SidebarFooter>
     </Sidebar>

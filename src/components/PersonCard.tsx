@@ -8,9 +8,9 @@ interface PersonCardProps {
 }
 
 const sourceColors: Record<string, string> = {
-  truepeoplesearch: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
-  fastpeoplesearch: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
-  searchpeoplefree: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
+  truepeoplesearch: 'bg-info/10 text-info border-info/20',
+  fastpeoplesearch: 'bg-success/10 text-success border-success/20',
+  searchpeoplefree: 'bg-warning/10 text-warning border-warning/20',
 };
 
 export function PersonCard({ person }: PersonCardProps) {

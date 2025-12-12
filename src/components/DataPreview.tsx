@@ -51,7 +51,7 @@ export function DataPreview({ data }: DataPreviewProps) {
           <ScrollArea className="h-[350px]">
             <Table>
               <TableHeader>
-                <TableRow className="border-border/50 hover:bg-transparent">
+                <TableRow className="border-border/30 hover:bg-transparent">
                   <TableHead className="w-12 text-muted-foreground">#</TableHead>
                   <TableHead className="text-muted-foreground">Address</TableHead>
                   <TableHead className="text-muted-foreground">Name</TableHead>
@@ -59,7 +59,7 @@ export function DataPreview({ data }: DataPreviewProps) {
               </TableHeader>
               <TableBody>
                 {data.map((row, index) => (
-                  <TableRow key={index} className="border-border/30 hover:bg-accent/50 transition-colors">
+                  <TableRow key={index} className="border-border/20 hover:bg-accent/50 transition-colors">
                     <TableCell className="text-muted-foreground font-medium">{index + 1}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -84,7 +84,7 @@ export function DataPreview({ data }: DataPreviewProps) {
               {data.map((row, index) => (
                 <div
                   key={index}
-                  className="group relative p-4 rounded-lg border border-border/50 bg-gradient-to-br from-background to-accent/20 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all duration-200"
+                  className="group relative p-4 rounded-xl border border-border/30 bg-gradient-to-br from-background to-accent/20 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-200"
                 >
                   <div className="absolute top-2 right-2">
                     <Badge variant="outline" className="text-xs bg-background/80">

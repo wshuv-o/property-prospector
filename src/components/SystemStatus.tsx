@@ -10,7 +10,7 @@ function StatusItem({ label, status, isActive }: StatusItemProps) {
   return (
     <div className="flex items-center justify-between text-sm">
       <span className="text-muted-foreground">{label}</span>
-      <span className={isActive ? "text-emerald-500 font-medium" : "text-destructive font-medium"}>
+      <span className={isActive ? "text-success font-medium" : "text-destructive font-medium"}>
         {status}
       </span>
     </div>
@@ -19,12 +19,12 @@ function StatusItem({ label, status, isActive }: StatusItemProps) {
 
 export function SystemStatus() {
   return (
-    <div className="rounded-lg border bg-card p-4 space-y-3">
+    <div className="rounded-xl border border-border/40 bg-card p-4 space-y-3">
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           System Status
         </span>
-        <Circle className="h-2.5 w-2.5 fill-emerald-500 text-emerald-500" />
+        <Circle className="h-2.5 w-2.5 fill-success text-success" />
       </div>
       <div className="space-y-2">
         <StatusItem label="Proxy Pool" status="Active (US)" isActive={true} />

@@ -28,7 +28,7 @@ const UploadPage = () => {
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-medium flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-emerald-500" />
+                    <CheckCircle className="h-4 w-4 text-success" />
                     Ready to Process
                   </CardTitle>
                 </CardHeader>

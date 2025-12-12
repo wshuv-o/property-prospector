@@ -73,7 +73,7 @@ const ActivityPage = () => {
           <Card>
             <CardHeader className="pb-2">
               <CardDescription>Success Rate</CardDescription>
-              <CardTitle className="text-3xl text-emerald-500">94.2%</CardTitle>
+              <CardTitle className="text-3xl text-success">94.2%</CardTitle>
             </CardHeader>
           </Card>
           <Card>
@@ -105,12 +105,12 @@ const ActivityPage = () => {
               {activityLogs.map((log) => (
                 <div
                   key={log.id}
-                  className="flex items-center justify-between p-4 rounded-lg border bg-card"
+                  className="flex items-center justify-between p-4 rounded-xl border border-border/40 bg-card"
                 >
                   <div className="flex items-center gap-4">
                     <div className={`p-2 rounded-full ${
                       log.status === 'completed' 
-                        ? 'bg-emerald-500/10 text-emerald-500' 
+                        ? 'bg-success/10 text-success' 
                         : 'bg-destructive/10 text-destructive'
                     }`}>
                       {log.status === 'completed' ? (

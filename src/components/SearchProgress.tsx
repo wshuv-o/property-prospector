@@ -12,7 +12,7 @@ interface SearchProgressProps {
 const statusIcons = {
   pending: <Circle className="h-4 w-4 text-muted-foreground" />,
   searching: <Loader2 className="h-4 w-4 text-primary animate-spin" />,
-  completed: <CheckCircle2 className="h-4 w-4 text-green-500" />,
+  completed: <CheckCircle2 className="h-4 w-4 text-success" />,
   error: <XCircle className="h-4 w-4 text-destructive" />,
 };
 
@@ -37,7 +37,7 @@ export function SearchProgress({ results, totalCount }: SearchProgressProps) {
         
         <div className="flex gap-4 text-sm">
           <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-green-500" />
+            <div className="h-3 w-3 rounded-full bg-success" />
             <span>{completed} completed</span>
           </div>
           {searching > 0 && (
