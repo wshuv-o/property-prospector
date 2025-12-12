@@ -1,3 +1,4 @@
+// src\pages\ResultsPage.tsx
 import { useState } from 'react';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { ResultsGrid } from '@/components/ResultsGrid';

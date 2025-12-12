@@ -1,3 +1,4 @@
+// src\components\Header.tsx
 import { Search, Database, Shield } from 'lucide-react';
 
 export function Header() {

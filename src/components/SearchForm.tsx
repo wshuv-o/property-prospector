@@ -1,3 +1,4 @@
+// src\components\SearchForm.tsx
 import { useState } from 'react';
 import { Search, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';

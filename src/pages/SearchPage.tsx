@@ -1,3 +1,4 @@
+// src\pages\SearchPage.tsx
 import { useState } from 'react';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { SearchForm } from '@/components/SearchForm';

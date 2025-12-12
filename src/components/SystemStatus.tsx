@@ -1,3 +1,4 @@
+// src\components\SystemStatus.tsx
 import { Circle } from "lucide-react";
 
 interface StatusItemProps {

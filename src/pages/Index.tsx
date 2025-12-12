@@ -1,3 +1,4 @@
+// src\pages\Index.tsx
 import { useState, useCallback } from 'react';
 import { Play, StopCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';

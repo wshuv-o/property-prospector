@@ -1,3 +1,4 @@
+// src\components\SearchProgress.tsx
 import { CheckCircle2, Circle, Loader2, XCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
