@@ -72,8 +72,8 @@ export function FileUpload({ onDataParsed }: FileUploadProps) {
     <Card className="p-6">
       <div
         className={cn(
-          "border-2 border-dashed rounded-lg p-8 text-center transition-colors",
-          isDragging ? "border-primary bg-accent" : "border-border",
+          "border border-dashed rounded-xl p-8 text-center transition-colors",
+          isDragging ? "border-primary bg-accent" : "border-border/60",
           error && "border-destructive"
         )}
         onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
