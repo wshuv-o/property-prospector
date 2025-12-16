@@ -74,6 +74,130 @@ app.delete('/api/users/:id', async (req, res) => {
 
 // ============ DATA ENDPOINTS ============
 
+// Get top N data rows (minimal fields for scraping)
+app.get('/api/data/top/:limit', async (req, res) => {
+  try {
+    let { limit } = req.params;
+
+    limit = parseInt(limit, 10);
+
+    if (isNaN(limit) || limit <= 0) {
+      return res.status(400).json({ error: 'Invalid limit value' });
+    }
+
+    // Safety cap (optional but recommended)
+    if (limit > 100) limit = 100;
+
+    const [rows] = await pool.query(
+      `
+      SELECT 
+        id,
+        raw_name,
+        fastpeoplesearch_url,
+        truepeoplesearch_url,
+        searchpeoplefree_url
+      FROM data
+      WHERE status IS NULL
+      ORDER BY created_at ASC
+      LIMIT ?
+      `,
+      [limit]
+    );
+
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+// Update scraped data (emails, numbers, user who worked)
+app.patch('/api/data/:id/update', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const {
+      scraped_name,
+      scraped_emails,
+      scraped_numbers,
+      best_email,
+      best_number,
+      status,
+      scrapped_from,
+      scraped_by
+    } = req.body;
+
+    if (!scraped_by) {
+      return res.status(400).json({ error: 'scraped_by (user id) is required' });
+    }
+
+    const fields = [];
+    const values = [];
+
+    if (scraped_name !== undefined) {
+      fields.push('scraped_name = ?');
+      values.push(scraped_name);
+    }
+
+    if (scraped_emails !== undefined) {
+      fields.push('scraped_emails = ?');
+      values.push(scraped_emails);
+    }
+
+    if (scraped_numbers !== undefined) {
+      fields.push('scraped_numbers = ?');
+      values.push(scraped_numbers);
+    }
+
+    if (best_email !== undefined) {
+      fields.push('best_email = ?');
+      values.push(best_email);
+    }
+
+    if (best_number !== undefined) {
+      fields.push('best_number = ?');
+      values.push(best_number);
+    }
+
+    if (status !== undefined) {
+      fields.push('status = ?');
+      values.push(status);
+    }
+
+    if (scrapped_from !== undefined) {
+      fields.push('scrapped_from = ?');
+      values.push(scrapped_from);
+    }
+
+    // Always update who worked & time
+    fields.push('scraped_by = ?');
+    values.push(scraped_by);
+
+    fields.push('scraped_at = NOW()');
+
+    if (fields.length === 0) {
+      return res.status(400).json({ error: 'No fields to update' });
+    }
+
+    values.push(id);
+
+    const [result] = await pool.query(
+      `UPDATE data SET ${fields.join(', ')} WHERE id = ?`,
+      values
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Data row not found' });
+    }
+
+    res.json({ message: 'Scraped data updated successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+
 // Upload data (batch insert)
 app.post('/api/data/upload', async (req, res) => {
   try {

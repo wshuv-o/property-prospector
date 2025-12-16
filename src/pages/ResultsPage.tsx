@@ -126,11 +126,11 @@ const ResultsPage = () => {
                           <TableCell>{row.raw_name || '-'}</TableCell>
                           <TableCell>{getStatusBadge(row.status)}</TableCell>
                           <TableCell className="text-sm">
-                            {row.scraped_name || row.scraped_email || row.scraped_phone ? (
+                            {row.scraped_name || row.scraped_emails || row.scraped_numbers ? (
                               <div className="space-y-0.5">
                                 {row.scraped_name && <div>{row.scraped_name}</div>}
-                                {row.scraped_email && <div className="text-muted-foreground">{row.scraped_email}</div>}
-                                {row.scraped_phone && <div className="text-muted-foreground">{row.scraped_phone}</div>}
+                                {row.scraped_emails && <div className="text-muted-foreground">{row.scraped_emails}</div>}
+                                {row.scraped_numbers && <div className="text-muted-foreground">{row.scraped_numbers}</div>}
                               </div>
                             ) : '-'}
                           </TableCell>

@@ -1,3 +1,5 @@
+// F:\Imtiaj Sajin\property-prospector\src\lib\api.ts
+
 // API client for backend communication
 // Change this to your VPS URL when deployed
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -83,8 +85,8 @@ export interface DataRow {
   scrapped_from: number | null;
   status: string | null;
   scraped_name: string | null;
-  scraped_email: string | null;
-  scraped_phone: string | null;
+  scraped_emails: string | null;
+  scraped_numbers: string | null;
   batch: string | null;
   scraped_by: number | null;
   scraped_by_name: string | null;
