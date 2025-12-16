@@ -1,3 +1,4 @@
+// F:\Imtiaj Sajin\property-prospector\backend\index.js
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
@@ -8,10 +9,10 @@ app.use(express.json({ limit: '50mb' }));
 
 // MySQL connection pool
 const pool = mysql.createPool({
-  host: '31.17.221.4',
+  host: '31.97.211.4',
   port: 3306,
-  user: 'bodin',
-  password: 'bodin15610',
+  user: 'odin',
+  password: 'odin156100',
   database: 'extention_scraper',
   waitForConnections: true,
   connectionLimit: 10,
