@@ -1,5 +1,4 @@
-// src\components\AppSidebar.tsx
-import { Search, Upload, LayoutDashboard, Settings, Database, Activity } from "lucide-react";
+import { Upload, Settings, Database, Activity, Users } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { SystemStatus } from "@/components/SystemStatus";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -14,15 +13,13 @@ import {
   SidebarMenuItem,
   SidebarHeader,
   SidebarFooter,
-  SidebarTrigger,
 } from "@/components/ui/sidebar";
 
 const navItems = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Search", url: "/search", icon: Search },
-  { title: "Bulk Upload", url: "/upload", icon: Upload },
+  { title: "Upload Data", url: "/", icon: Upload },
   { title: "Results", url: "/results", icon: Database },
   { title: "Activity", url: "/activity", icon: Activity },
+  { title: "Users", url: "/users", icon: Users },
 ];
 
 const settingsItems = [
@@ -36,7 +33,7 @@ export function AppSidebar() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <Search className="h-4 w-4 text-primary-foreground" />
+              <Database className="h-4 w-4 text-primary-foreground" />
             </div>
             <div>
               <h1 className="font-semibold text-sm">PeopleSearch</h1>
