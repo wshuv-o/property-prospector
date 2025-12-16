@@ -1,4 +1,6 @@
 // F:\Imtiaj Sajin\property-prospector\backend\index.js
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
@@ -9,15 +11,16 @@ app.use(express.json({ limit: '50mb' }));
 
 // MySQL connection pool
 const pool = mysql.createPool({
-  host: '31.97.211.4',
-  port: 3306,
-  user: 'odin',
-  password: 'odin156100',
-  database: 'extention_scraper',
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
 });
+
 
 // Health check
 app.get('/api/health', async (req, res) => {
