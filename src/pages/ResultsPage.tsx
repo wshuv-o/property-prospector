@@ -5,7 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Database, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
+import { 
+  Database, 
+  RefreshCw, 
+  ChevronLeft, 
+  ChevronRight, 
+  User, 
+  Mail, 
+  Phone, 
+  Layers, 
+  Star 
+} from "lucide-react";
 import { toast } from "sonner";
 import { dataApi, DataRow } from "@/lib/api";
 
@@ -128,40 +138,75 @@ const ResultsPage = () => {
                           <TableCell>{getStatusBadge(row.status)}</TableCell>
                           {/* Find the TableCell under the "Scraped Data" column and replace it with this: */}
 
-                          <TableCell className="text-sm">
-                            {row.scraped_name || row.best_email || row.best_number || row.scraped_emails || row.scraped_numbers ? (
-                              <div className="flex flex-col gap-1">
-                                {/* 1. Scraped Name */}
-                                {row.scraped_name && <div className="font-medium">{row.scraped_name}</div>}
-                                
-                                {/* 2. Best Email (Highlighted in Green) */}
-                                {row.best_email && (
-                                  <div className="text-green-600 dark:text-green-400 font-bold bg-green-50 dark:bg-green-900/20 px-1 rounded w-fit">
-                                    ✉️ {row.best_email}
-                                  </div>
-                                )}
+<TableCell className="py-3">
+  {row.scraped_name || row.best_email || row.best_number || row.scraped_emails ? (
+    <div className="flex flex-col gap-2 min-w-[250px]">
+      
+      {/* 1. Name Section */}
+      {row.scraped_name && (
+        <div className="flex items-center gap-2 font-semibold text-foreground">
+          <div className="p-1 rounded-full bg-slate-100 dark:bg-slate-800">
+            <User className="h-3.5 w-3.5 text-slate-500" />
+          </div>
+          {row.scraped_name}
+        </div>
+      )}
 
-                                {/* 3. Best Number (Highlighted in Blue) */}
-                                {row.best_number && (
-                                  <div className="text-blue-600 dark:text-blue-400 font-bold bg-blue-50 dark:bg-blue-900/20 px-1 rounded w-fit">
-                                    📞 {row.best_number}
-                                  </div>
-                                )}
+      {/* 2. Best Data Section (Highlighted Badges) */}
+      {(row.best_email || row.best_number) && (
+        <div className="flex flex-wrap gap-2 mt-0.5">
+          
+          {/* Best Email - Green/Emerald Style */}
+          {row.best_email && (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800">
+              <Mail className="h-3.5 w-3.5" />
+              <span className="text-xs font-bold">{row.best_email}</span>
+              <Star className="h-3 w-3 fill-emerald-500 text-emerald-500 ml-1" />
+            </div>
+          )}
 
-                                {/* 4. Other/Raw Data (Muted) */}
-                                {(row.scraped_emails && row.scraped_emails !== row.best_email) && (
-                                  <div className="text-xs text-muted-foreground break-all mt-1">
-                                    Other emails: {row.scraped_emails}
-                                  </div>
-                                )}
-                                {(row.scraped_numbers && row.scraped_numbers !== row.best_number) && (
-                                  <div className="text-xs text-muted-foreground mt-0.5">
-                                    Other #s: {row.scraped_numbers}
-                                  </div>
-                                )}
-                              </div>
-                            ) : '-'}
-                          </TableCell>
+          {/* Best Number - Blue/Indigo Style */}
+          {row.best_number && (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800">
+              <Phone className="h-3.5 w-3.5" />
+              <span className="text-xs font-bold">{row.best_number}</span>
+              <Star className="h-3 w-3 fill-blue-500 text-blue-500 ml-1" />
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 3. Raw/Other Data Section (Collapsible/Muted look) */}
+      {((row.scraped_emails && row.scraped_emails !== row.best_email) || 
+        (row.scraped_numbers && row.scraped_numbers !== row.best_number)) && (
+        <div className="flex flex-col gap-1 mt-1 pl-1 border-l-2 border-slate-100 dark:border-slate-800">
+          
+          {/* Other Emails */}
+          {row.scraped_emails && row.scraped_emails !== row.best_email && (
+            <div className="flex items-start gap-2 text-xs text-muted-foreground">
+              <Layers className="h-3 w-3 mt-0.5 opacity-50" />
+              <span className="break-all line-clamp-2" title={row.scraped_emails}>
+                All Emails: {row.scraped_emails}
+              </span>
+            </div>
+          )}
+
+          {/* Other Numbers */}
+          {row.scraped_numbers && row.scraped_numbers !== row.best_number && (
+            <div className="flex items-start gap-2 text-xs text-muted-foreground">
+              <Layers className="h-3 w-3 mt-0.5 opacity-50" />
+              <span className="break-all line-clamp-2" title={row.scraped_numbers}>
+                All #s: {row.scraped_numbers}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  ) : (
+    <span className="text-muted-foreground/50 text-sm">-</span>
+  )}
+</TableCell>
                           
                           <TableCell>{row.scraped_by_name || '-'}</TableCell>
                           <TableCell className="text-muted-foreground text-xs">{row.batch || '-'}</TableCell>
