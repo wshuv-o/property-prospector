@@ -85,6 +85,8 @@ export interface DataRow {
   scrapped_from: number | null;
   status: string | null;
   scraped_name: string | null;
+  best_email: string | null;
+  best_number: string | null;
   scraped_emails: string | null;
   scraped_numbers: string | null;
   batch: string | null;
