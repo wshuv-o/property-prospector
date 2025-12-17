@@ -127,7 +127,8 @@ app.patch('/api/data/:id/update', async (req, res) => {
       best_number,
       status,
       scrapped_from,
-      scraped_by
+      scraped_by,
+      profile_url
     } = req.body;
 
     if (!scraped_by) {
@@ -170,6 +171,11 @@ app.patch('/api/data/:id/update', async (req, res) => {
     if (scrapped_from !== undefined) {
       fields.push('scrapped_from = ?');
       values.push(scrapped_from);
+    }
+
+    if (profile_url !== undefined) {
+      fields.push('profile_url = ?');
+      values.push(profile_url);
     }
 
     // Always update who worked & time
