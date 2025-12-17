@@ -2,7 +2,7 @@
 
 // API client for backend communication
 // Change this to your VPS URL when deployed
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://31.97.211.4:3002';
 
 interface ApiResponse<T> {
   data?: T;
