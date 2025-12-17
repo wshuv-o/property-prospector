@@ -204,13 +204,19 @@ app.patch('/api/data/:id/update', async (req, res) => {
 function buildFastPeopleSearchUrl(address) {
   if (!address) return null;
 
-  return (
-    'https://www.fastpeoplesearch.com/address/' +
-    address
-      .toLowerCase()
-      .replace(',', '_')   // first comma to underscore
-      .replace(/\s+/g, '-') // spaces to hyphen
-  );
+  // Replace the first comma+space with underscore
+  let urlPart = address.replace(', ', '_');
+
+  // Replace the second comma+space (if any) with hyphen
+  const commaIndex = urlPart.indexOf(', ');
+  if (commaIndex !== -1) {
+    urlPart = urlPart.replace(', ', '-');
+  }
+
+  // Replace remaining spaces with hyphens
+  urlPart = urlPart.replace(/\s+/g, '-');
+
+  return 'https://www.fastpeoplesearch.com/address/' + urlPart.toLowerCase();
 }
 
 
