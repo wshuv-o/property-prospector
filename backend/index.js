@@ -201,36 +201,62 @@ app.patch('/api/data/:id/update', async (req, res) => {
 
 
 
+function buildFastPeopleSearchUrl(address) {
+  if (!address) return null;
+
+  return (
+    'https://www.fastpeoplesearch.com/address/' +
+    address
+      .toLowerCase()
+      .replace(',', '_')   // first comma to underscore
+      .replace(/\s+/g, '-') // spaces to hyphen
+  );
+}
+
+
 // Upload data (batch insert)
 app.post('/api/data/upload', async (req, res) => {
   try {
     const { rows, batchCode } = req.body;
+
     if (!rows || !Array.isArray(rows) || rows.length === 0) {
       return res.status(400).json({ error: 'No data provided' });
     }
 
     const batch = batchCode || `batch_${Date.now()}`;
-    
+
     // Insert batch record
     await pool.query(
-      'INSERT INTO batch (batch_code, total_rows) VALUES (?, ?) ON DUPLICATE KEY UPDATE total_rows = total_rows + ?',
+      `
+      INSERT INTO batch (batch_code, total_rows)
+      VALUES (?, ?)
+      ON DUPLICATE KEY UPDATE total_rows = total_rows + ?
+      `,
       [batch, rows.length, rows.length]
     );
 
     // Prepare values for bulk insert
-    const values = rows.map(row => [
-      row.name || null,
-      row.address || null,
-      batch
-    ]);
+    const values = rows.map(row => {
+      const fastUrl = buildFastPeopleSearchUrl(row.address);
+
+      return [
+        row.name || null,
+        row.address || null,
+        fastUrl,
+        batch
+      ];
+    });
 
     const [result] = await pool.query(
-      'INSERT INTO data (raw_name, raw_address, batch) VALUES ?',
+      `
+      INSERT INTO data (raw_name, raw_address, fastpeoplesearch_url, batch)
+      VALUES ?
+      `,
       [values]
     );
 
-    res.json({ 
-      message: 'Data uploaded successfully', 
+    res.json({
+      message: 'Data uploaded successfully',
       insertedCount: result.affectedRows,
       batchCode: batch
     });
@@ -238,6 +264,7 @@ app.post('/api/data/upload', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
 
 // Get data with filters
 app.get('/api/data', async (req, res) => {
