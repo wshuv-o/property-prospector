@@ -126,15 +126,43 @@ const ResultsPage = () => {
                           </TableCell>
                           <TableCell>{row.raw_name || '-'}</TableCell>
                           <TableCell>{getStatusBadge(row.status)}</TableCell>
+                          {/* Find the TableCell under the "Scraped Data" column and replace it with this: */}
+
                           <TableCell className="text-sm">
-                            {row.scraped_name || row.scraped_emails || row.scraped_numbers ? (
-                              <div className="space-y-0.5">
-                                {row.scraped_name && <div>{row.scraped_name}</div>}
-                                {row.scraped_emails && <div className="text-muted-foreground">{row.scraped_emails}</div>}
-                                {row.scraped_numbers && <div className="text-muted-foreground">{row.scraped_numbers}</div>}
+                            {row.scraped_name || row.best_email || row.best_number || row.scraped_emails || row.scraped_numbers ? (
+                              <div className="flex flex-col gap-1">
+                                {/* 1. Scraped Name */}
+                                {row.scraped_name && <div className="font-medium">{row.scraped_name}</div>}
+                                
+                                {/* 2. Best Email (Highlighted in Green) */}
+                                {row.best_email && (
+                                  <div className="text-green-600 dark:text-green-400 font-bold bg-green-50 dark:bg-green-900/20 px-1 rounded w-fit">
+                                    ✉️ {row.best_email}
+                                  </div>
+                                )}
+
+                                {/* 3. Best Number (Highlighted in Blue) */}
+                                {row.best_number && (
+                                  <div className="text-blue-600 dark:text-blue-400 font-bold bg-blue-50 dark:bg-blue-900/20 px-1 rounded w-fit">
+                                    📞 {row.best_number}
+                                  </div>
+                                )}
+
+                                {/* 4. Other/Raw Data (Muted) */}
+                                {(row.scraped_emails && row.scraped_emails !== row.best_email) && (
+                                  <div className="text-xs text-muted-foreground break-all mt-1">
+                                    Other emails: {row.scraped_emails}
+                                  </div>
+                                )}
+                                {(row.scraped_numbers && row.scraped_numbers !== row.best_number) && (
+                                  <div className="text-xs text-muted-foreground mt-0.5">
+                                    Other #s: {row.scraped_numbers}
+                                  </div>
+                                )}
                               </div>
                             ) : '-'}
                           </TableCell>
+                          
                           <TableCell>{row.scraped_by_name || '-'}</TableCell>
                           <TableCell className="text-muted-foreground text-xs">{row.batch || '-'}</TableCell>
                         </TableRow>
