@@ -2,7 +2,7 @@
 
 // API client for backend communication
 // Change this to your VPS URL when deployed
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://backendproperty.bulkscraper.cloud';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002';
 
 interface ApiResponse<T> {
   data?: T;
@@ -103,11 +103,19 @@ export interface Stats {
     completed: number;
     errors: number;
   };
-  byUser: Array<{
-    id: number;
+  today: {
+    total: number;
+    completed: number;
+    errors: number;
+  };
+  performance: Array<{
     username: string;
-    completed_count: number;
     date: string;
+    completed: number;
+    errors: number;
+  }>;
+  users: Array<{
+    username: string;
   }>;
   byDate: Array<{
     date: string;
@@ -119,7 +127,7 @@ export interface Stats {
     batch_code: string;
     total_rows: number;
     created_at: string;
-    scraped_at: string ;
+    scraped_at: string;
     completed: number;
     errors: number;
   }>;

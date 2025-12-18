@@ -327,10 +327,11 @@ app.get('/api/data', async (req, res) => {
   }
 });
 
+
 // Get statistics
 app.get('/api/stats', async (req, res) => {
   try {
-    // Overall stats
+    // 1. Overall stats (Lifetime)
     const [[overall]] = await pool.query(`
       SELECT 
         COUNT(*) as total,
@@ -340,20 +341,34 @@ app.get('/api/stats', async (req, res) => {
       FROM data
     `);
 
-    // Stats by user
-    const [byUser] = await pool.query(`
+    // 2. Today's Stats (Current Data)
+    const [[today]] = await pool.query(`
       SELECT 
-        u.id,
-        u.username,
-        COUNT(d.id) as completed_count,
-        DATE(d.scraped_at) as date
-      FROM user u
-      LEFT JOIN data d ON u.id = d.scraped_by AND d.status = 'done' AND d.scraped_at IS NOT NULL
-      GROUP BY u.id, u.username, DATE(d.scraped_at)
-      ORDER BY date DESC, completed_count DESC
+        COUNT(*) as total,
+        IFNULL(SUM(CASE WHEN status = 'done' THEN 1 ELSE 0 END), 0) as completed,
+        IFNULL(SUM(CASE WHEN status = 'error' THEN 1 ELSE 0 END), 0) as errors
+      FROM data
+      WHERE DATE(scraped_at) = CURDATE()
     `);
 
-    // Stats by date
+    // 3. Detailed Performance Log (Grouped by Date & User)
+    const [performance] = await pool.query(`
+      SELECT 
+        u.username,
+        DATE(d.scraped_at) as date,
+        COUNT(CASE WHEN d.status = 'done' THEN 1 END) as completed,
+        COUNT(CASE WHEN d.status = 'error' THEN 1 END) as errors
+      FROM data d
+      JOIN user u ON d.scraped_by = u.id
+      WHERE d.scraped_at IS NOT NULL
+      GROUP BY u.username, DATE(d.scraped_at)
+      ORDER BY date DESC, completed DESC
+    `);
+
+    // 4. List of all users (For the filter dropdown)
+    const [users] = await pool.query('SELECT username FROM user ORDER BY username ASC');
+
+    // 5. Chart Data (Last 30 Days)
     const [byDate] = await pool.query(`
       SELECT 
         DATE(scraped_at) as date,
@@ -366,7 +381,7 @@ app.get('/api/stats', async (req, res) => {
       ORDER BY date DESC
     `);
 
-    // Batches
+    // 6. Recent Batches
     const [batches] = await pool.query(`
       SELECT 
         b.batch_code,
@@ -379,10 +394,10 @@ app.get('/api/stats', async (req, res) => {
       LEFT JOIN data d ON b.batch_code = d.batch
       GROUP BY b.id
       ORDER BY last_scraped_at DESC
-      LIMIT 20
+      LIMIT 10
     `);
 
-    res.json({ overall, byUser, byDate, batches });
+    res.json({ overall, today, performance, users, byDate, batches });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
