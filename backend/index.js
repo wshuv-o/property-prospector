@@ -346,23 +346,23 @@ app.get('/api/stats', async (req, res) => {
         u.id,
         u.username,
         COUNT(d.id) as completed_count,
-        DATE(d.created_at) as date
+        DATE(d.scraped_at) as date
       FROM user u
-      LEFT JOIN data d ON u.id = d.scraped_by AND d.status = 'done'
-      GROUP BY u.id, u.username, DATE(d.created_at)
+      LEFT JOIN data d ON u.id = d.scraped_by AND d.status = 'done' AND d.scraped_at IS NOT NULL
+      GROUP BY u.id, u.username, DATE(d.scraped_at)
       ORDER BY date DESC, completed_count DESC
     `);
 
     // Stats by date
     const [byDate] = await pool.query(`
       SELECT 
-        DATE(created_at) as date,
+        DATE(scraped_at) as date,
         COUNT(*) as total,
         SUM(CASE WHEN status = 'done' THEN 1 ELSE 0 END) as completed,
         SUM(CASE WHEN status = 'error' THEN 1 ELSE 0 END) as errors
       FROM data
-      WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-      GROUP BY DATE(created_at)
+      WHERE scraped_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+      GROUP BY DATE(scraped_at)
       ORDER BY date DESC
     `);
 
@@ -372,12 +372,13 @@ app.get('/api/stats', async (req, res) => {
         b.batch_code,
         b.total_rows,
         b.created_at,
+        MAX(d.scraped_at) as last_scraped_at,
         COUNT(CASE WHEN d.status = 'done' THEN 1 END) as completed,
         COUNT(CASE WHEN d.status = 'error' THEN 1 END) as errors
       FROM batch b
       LEFT JOIN data d ON b.batch_code = d.batch
       GROUP BY b.id
-      ORDER BY b.created_at DESC
+      ORDER BY last_scraped_at DESC
       LIMIT 20
     `);
 
