@@ -1,3 +1,4 @@
+// src\components\AppSidebar.tsx
 import { Upload, Settings, Database, Activity, Users } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { SystemStatus } from "@/components/SystemStatus";
