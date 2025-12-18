@@ -93,6 +93,7 @@ export interface DataRow {
   scraped_by: number | null;
   scraped_by_name: string | null;
   created_at: string;
+  scraped_at: string | null;
 }
 
 export interface Stats {
@@ -118,6 +119,7 @@ export interface Stats {
     batch_code: string;
     total_rows: number;
     created_at: string;
+    scraped_at: string ;
     completed: number;
     errors: number;
   }>;
