@@ -1,4 +1,5 @@
 // F:\Imtiaj Sajin\property-prospector\backend\index.js
+const bcrypt = require('bcrypt');
 require('dotenv').config();
 
 const express = require('express');
@@ -37,29 +38,75 @@ app.get('/api/health', async (req, res) => {
 // Get all users
 app.get('/api/users', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT id, username, created_at FROM user ORDER BY created_at DESC');
+    const [rows] = await pool.query(
+      'SELECT id, username, created_at FROM user ORDER BY created_at DESC'
+    );
     res.json(rows);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// Create user
+// Create user (HASH PASSWORD)
 app.post('/api/users', async (req, res) => {
   try {
     const { username, pass } = req.body;
+
     if (!username || !pass) {
       return res.status(400).json({ error: 'Username and password required' });
     }
+
+    const hashedPass = await bcrypt.hash(pass, 10);
+
     const [result] = await pool.query(
       'INSERT INTO user (username, pass) VALUES (?, ?)',
-      [username, pass]
+      [username, hashedPass]
     );
-    res.json({ id: result.insertId, username, message: 'User created successfully' });
+
+    res.json({
+      id: result.insertId,
+      username,
+      message: 'User created successfully'
+    });
   } catch (error) {
     if (error.code === 'ER_DUP_ENTRY') {
       return res.status(400).json({ error: 'Username already exists' });
     }
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Login user
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password required' });
+    }
+
+    const [rows] = await pool.query(
+      'SELECT id, username, pass FROM user WHERE username = ?',
+      [username]
+    );
+
+    if (rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid username or password' });
+    }
+
+    const user = rows[0];
+    const isMatch = await bcrypt.compare(password, user.pass);
+
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid username or password' });
+    }
+
+    res.json({
+      id: user.id,
+      username: user.username,
+      message: 'Login successful'
+    });
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
@@ -74,6 +121,7 @@ app.delete('/api/users/:id', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
 
 // ============ DATA ENDPOINTS ============
 
