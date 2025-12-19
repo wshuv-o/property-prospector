@@ -101,7 +101,7 @@ app.get('/api/data/top/:limit', async (req, res) => {
         searchpeoplefree_url
       FROM data
       WHERE status IS NULL
-      ORDER BY created_at ASC
+      ORDER BY id ASC
       LIMIT ?
       `,
       [limit]
