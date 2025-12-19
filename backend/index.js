@@ -470,6 +470,46 @@ app.get('/api/batches', async (req, res) => {
   }
 });
 
+// =============================================
+// for bulkscraper.cloud (project1)
+
+// Log usage for a user
+app.post('/api/usage/log', async (req, res) => {
+  try {
+    const { user_id, base_url, pages_scraped, input_tokens, output_tokens } = req.body;
+
+    if (!user_id || !base_url) {
+      return res.status(400).json({ error: 'User ID and Base URL are required' });
+    }
+
+    await pool.query(
+      'INSERT INTO bulk_usage (user_id, base_url, pages_scraped, input_tokens, output_tokens) VALUES (?, ?, ?, ?, ?)',
+      [user_id, base_url, pages_scraped || 0, input_tokens || 0, output_tokens || 0]
+    );
+
+    res.json({ message: 'Usage logged successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get usage stats (Optional: for your admin dashboard later)
+app.get('/api/usage/stats', async (req, res) => {
+  try {
+    const [rows] = await pool.query(`
+      SELECT u.username, b.base_url, b.pages_scraped, b.input_tokens, b.output_tokens, b.created_at 
+      FROM bulk_usage b 
+      JOIN user u ON b.user_id = u.id 
+      ORDER BY b.created_at DESC
+    `);
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+
 const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => {
   console.log(`API server running on port ${PORT}`);
