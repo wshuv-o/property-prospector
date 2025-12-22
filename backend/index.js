@@ -497,7 +497,7 @@ app.post('/api/usage/log', async (req, res) => {
 app.get('/api/usage/stats', async (req, res) => {
   try {
     const [rows] = await pool.query(`
-      SELECT u.username, b.base_url, b.pages_scraped, b.input_tokens, b.output_tokens, b.created_at 
+      SELECT u.username,b.user_id, b.base_url, b.pages_scraped, b.input_tokens, b.output_tokens, b.created_at 
       FROM bulk_usage b 
       JOIN user u ON b.user_id = u.id 
       ORDER BY b.created_at DESC
