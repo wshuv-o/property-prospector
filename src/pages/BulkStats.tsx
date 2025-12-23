@@ -224,7 +224,8 @@ const BulkStats = () => {
       {/* --- FIRST CHART SECTION (MAIN CHART + NODE OUTPUT) --- */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Resource Consumption (Left - Huge Chart) */}
-        <Card className="lg:col-span-8 shadow-2xl border-none bg-card overflow-hidden">
+        <Card className="lg:col-span-8 shadow-2xl bg-background/40 backdrop-blur-xl
+                shadow-[0_8px_32px_rgba(0,0,0,0.25)] overflow-hidden">
           <CardHeader className="border-b border-border/50 pb-4">
             <div className="flex items-center justify-between">
               <div>
@@ -263,10 +264,11 @@ const BulkStats = () => {
         </Card>
 
         {/* Node Output (Right Side) */}
-        <Card className="lg:col-span-4 shadow-2xl border-none bg-card">
+        <Card className="lg:col-span-4 shadow-2xl bg-background/40 backdrop-blur-xl
+                shadow-[0_8px_32px_rgba(0,0,0,0.25)] ">
           <CardHeader>
             <CardTitle className="text-xl font-black uppercase tracking-tighter flex items-center gap-2">
-              <Microscope className="h-5 w-5 text-primary" /> Node Output
+              <Microscope className="h-5 w-5 text-primary" /> Top Users
             </CardTitle>
             <CardDescription>Websites scraped per node</CardDescription>
           </CardHeader>
