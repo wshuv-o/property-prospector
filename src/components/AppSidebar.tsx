@@ -26,7 +26,7 @@ const navItems = [
 const bulkItems = [
   // { title: "Upload Data", url: "/", icon: Upload },
   // { title: "Results", url: "/results", icon: Database },
-  { title: "Usage", url: "/usage", icon: Activity },
+  { title: "Usage", url: "/bulkstats", icon: Activity },
   // { title: "Users", url: "/users", icon: Users },
 ];
 

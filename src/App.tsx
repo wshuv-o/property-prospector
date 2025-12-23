@@ -10,6 +10,7 @@ import ActivityPage from "./pages/ActivityPage";
 import SettingsPage from "./pages/SettingsPage";
 import UsersPage from "./pages/UsersPage";
 import NotFound from "./pages/NotFound";
+import BulkStats from "./pages/BulkStats";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/results" element={<ResultsPage />} />
             <Route path="/activity" element={<ActivityPage />} />
             <Route path="/users" element={<UsersPage />} />
+            <Route path="/bulkstats" element={<BulkStats />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
