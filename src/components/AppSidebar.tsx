@@ -23,6 +23,14 @@ const navItems = [
   { title: "Users", url: "/users", icon: Users },
 ];
 
+const bulkItems = [
+  // { title: "Upload Data", url: "/", icon: Upload },
+  // { title: "Results", url: "/results", icon: Database },
+  { title: "Usage", url: "/usage", icon: Activity },
+  // { title: "Users", url: "/users", icon: Users },
+];
+
+
 const settingsItems = [
   { title: "Settings", url: "/settings", icon: Settings },
 ];
@@ -53,6 +61,31 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to={item.url} 
+                      end 
+                      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent"
+                      activeClassName="bg-accent text-accent-foreground font-medium"
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+         <SidebarGroup>
+          <SidebarGroupLabel className="text-xs uppercase tracking-wider">
+            bulkscraper.cloud
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {bulkItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink 
