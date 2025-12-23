@@ -152,7 +152,9 @@ const BulkStats = () => {
             <div className="bg-primary p-2 rounded-xl">
               <LayoutDashboard className="h-6 w-6 text-white" />
             </div>
-            <h1 className="text-4xl font-black tracking-tighter uppercase">Operations <span className="text-primary">Cloud</span></h1>
+ <h1 className="text-4xl font-black tracking-tight bg-gradient-to-br from-foreground via-primary to-blue-700 bg-clip-text text-transparent">
+            Usage Analytics
+          </h1>
           </div>
           <p className="text-muted-foreground font-medium flex items-center gap-2">
             <Activity className="h-4 w-4" /> Global Intelligence & Resource Intensity Analyzer
@@ -326,7 +328,7 @@ const BulkStats = () => {
          <Card className="shadow-2xl border-none bg-card">
             <CardHeader>
                <CardTitle className="text-xl font-black uppercase tracking-tighter flex items-center gap-2">
-                 <PieIcon className="h-5 w-5 text-primary" /> Token Distribution
+                 <PieIcon className="h-5 w-5 text-primary" /> Token Used
                </CardTitle>
                <CardDescription>Total system load by user node</CardDescription>
             </CardHeader>
@@ -341,6 +343,7 @@ const BulkStats = () => {
                     outerRadius={120}
                     paddingAngle={5}
                     dataKey="tokens"
+                    stroke="none" 
                   >
                     {userAggregates.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e'][index % 4]} />
