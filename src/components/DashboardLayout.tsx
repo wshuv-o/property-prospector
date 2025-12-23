@@ -9,9 +9,9 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background relative overflow-hidden">
+      <div className="min-h-screen flex w-full bg-background relative overflow-hidden ">
         {/* Animated gradient background */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="fixed inset-0 pointer-events-none overflow-hidden">
           <div className="animate-gradient-rise absolute inset-0">
             {/* Main gradient blobs */}
             <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-gradient-to-br from-purple-600/30 via-pink-500/20 to-transparent rounded-full blur-3xl" />

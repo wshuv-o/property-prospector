@@ -143,7 +143,7 @@ const BulkStats = () => {
 
 
   return (
-    <div className="p-4 space-y-6 max-w-[1800px] mx-auto bg-background pb-20">
+    <div className="p-4 space-y-6 max-w-[1800px] mx-auto pb-20">
       
       {/* --- HEADER --- */}
       <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6 bg-card border p-6 rounded-[2rem] shadow-2xl">
