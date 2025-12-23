@@ -253,7 +253,53 @@ app.patch('/api/data/:id/update', async (req, res) => {
   }
 });
 
+function parseAddress(address) {
+  if (!address) return null;
 
+  // Split by commas
+  const parts = address.split(',').map(p => p.trim());
+
+  if (parts.length < 3) return null;
+
+  const street = parts[0];                // 2009 Alston Ave
+  const city = parts[1];                  // Fort Worth
+  const stateZip = parts[2].split(' ');   // TX 76110
+
+  const state = stateZip[0];
+  const zip = stateZip[1] || '';
+
+  return { street, city, state, zip };
+}
+
+function buildSearchPeopleFreeUrl(address) {
+  const parsed = parseAddress(address);
+  if (!parsed) return null;
+
+  const { street, city, state } = parsed;
+
+  // Extract street number & name
+  const streetParts = street.split(' ');
+  const streetNumber = streetParts.shift();        // 2009
+  const streetName = streetParts.join(' ');        // Alston Ave
+
+  const citySlug = city.toLowerCase().replace(/\s+/g, '-');
+  const streetSlug = streetName.toLowerCase().replace(/\s+/g, '-');
+  const stateSlug = state.toLowerCase();
+
+  return `https://www.searchpeoplefree.com/address/${stateSlug}/${citySlug}/${streetSlug}/${streetNumber}`;
+}
+
+function buildTruePeopleSearchUrl(address) {
+  const parsed = parseAddress(address);
+  if (!parsed) return null;
+
+  const { street, city, state, zip } = parsed;
+
+  const streetEncoded = encodeURIComponent(street);
+  const cityStateZipEncoded = encodeURIComponent(`${city}, ${state} ${zip}`);
+
+  return `https://www.truepeoplesearch.com/resultaddress?streetaddress=${streetEncoded}&citystatezip=${cityStateZipEncoded}`;
+}
 
 function buildFastPeopleSearchUrl(address) {
   if (!address) return null;
@@ -296,20 +342,25 @@ app.post('/api/data/upload', async (req, res) => {
     );
 
     // Prepare values for bulk insert
-    const values = rows.map(row => {
-      const fastUrl = buildFastPeopleSearchUrl(row.address);
+const values = rows.map(row => {
+  const fastUrl = buildFastPeopleSearchUrl(row.address);
+  const truePeopleUrl = buildTruePeopleSearchUrl(row.address);
+  const searchPeopleFreeUrl = buildSearchPeopleFreeUrl(row.address);
 
-      return [
-        row.name || null,
-        row.address || null,
-        fastUrl,
-        batch
-      ];
-    });
+  return [
+    row.name || null,
+    row.address || null,
+    fastUrl,
+    truePeopleUrl,
+    searchPeopleFreeUrl,
+    batch
+  ];
+});
+
 
     const [result] = await pool.query(
       `
-      INSERT INTO data (raw_name, raw_address, fastpeoplesearch_url, batch)
+      INSERT INTO data (raw_name, raw_address, fastpeoplesearch_url, truepeoplesearch_url, searchpeoplefree_url, batch)
       VALUES ?
       `,
       [values]

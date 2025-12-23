@@ -2,7 +2,7 @@
 
 // API client for backend communication
 // Change this to your VPS URL when deployed
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://backendproperty.bulkscraper.cloud';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002';
 
 interface ApiResponse<T> {
   data?: T;
