@@ -90,7 +90,7 @@ const ActivityPage = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Pending Queue</p>
-                <span className="text-3xl font-bold">{stats?.overall?.pending.toLocaleString()}</span>
+                <span className="text-3xl font-bold">{stats.overall.pending?stats?.overall?.pending.toLocaleString():''}</span>
               </div>
               <div className="p-3 bg-warning/10 rounded-xl">
                 <TrendingUp className="h-5 w-5 text-warning" />
@@ -107,7 +107,7 @@ const ActivityPage = () => {
                 <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">Completed Today</p>
                 <div className="flex items-baseline gap-2">
                   <span className="text-3xl font-bold text-emerald-700 dark:text-emerald-300">
-                    +{stats?.today?.completed.toLocaleString()}
+                    +{stats.today.completed?stats?.today?.completed.toLocaleString():''}
                   </span>
                 </div>
               </div>
@@ -124,7 +124,7 @@ const ActivityPage = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Lifetime Errors</p>
-                <span className="text-3xl font-bold">{stats?.overall?.errors.toLocaleString()}</span>
+                <span className="text-3xl font-bold">{stats.overall.errors?stats?.overall?.errors.toLocaleString():''}</span>
               </div>
               <div className="p-3 bg-destructive/10 rounded-xl">
                 <XCircle className="h-5 w-5 text-destructive" />
