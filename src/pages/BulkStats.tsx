@@ -157,7 +157,7 @@ const BulkStats = () => {
           </h1>
           </div>
           <p className="text-muted-foreground font-medium flex items-center gap-2">
-            <Activity className="h-4 w-4" /> Global Intelligence & Resource Intensity Analyzer
+            <Activity className="h-4 w-4" />Research Analyzer for<a rel="noopener noreferrer" href="https://bulkscraper.cloud/" className="text-primary hover:underline">bulkscraper.cloud</a>
           </p>
         </div>
 
