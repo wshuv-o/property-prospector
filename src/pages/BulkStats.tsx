@@ -188,7 +188,7 @@ const BulkStats = () => {
             </Select>
           </div>
           <Button onClick={fetchBulkStats} className="rounded-2xl h-12 px-6 shadow-xl shadow-primary/20 hover:scale-105 transition-transform">
-            <RefreshCw className="h-4 w-4 mr-2" /> Refresh Sync
+            <RefreshCw className="h-4 w-4 mr-2" /> Refresh
           </Button>
         </div>
       </div>
@@ -344,6 +344,7 @@ const BulkStats = () => {
                     paddingAngle={5}
                     dataKey="tokens"
                     stroke="none" 
+                    cornerRadius={6} 
                   >
                     {userAggregates.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e'][index % 4]} />
