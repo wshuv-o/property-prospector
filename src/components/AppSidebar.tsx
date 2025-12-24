@@ -35,6 +35,11 @@ const settingsItems = [
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
+
+const toolsItems = [
+  { title: "Products", url: "/tools", icon: Database },
+];
+
 export function AppSidebar() {
   return (
     <Sidebar className="border-r border-border/40">
@@ -128,6 +133,35 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+
+        
+<SidebarGroup>
+  <SidebarGroupLabel className="text-xs uppercase tracking-wider">
+    Our Tools
+  </SidebarGroupLabel>
+  <SidebarGroupContent>
+    <SidebarMenu>
+      {toolsItems.map((item) => (
+        <SidebarMenuItem key={item.title}>
+          <SidebarMenuButton asChild>
+            <NavLink 
+              to={item.url} 
+              end 
+              className="flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent"
+              activeClassName="bg-accent text-accent-foreground font-medium"
+            >
+              <item.icon className="h-4 w-4" />
+              <span>{item.title}</span>
+            </NavLink>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      ))}
+    </SidebarMenu>
+  </SidebarGroupContent>
+</SidebarGroup>
+
+
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-border/40">
