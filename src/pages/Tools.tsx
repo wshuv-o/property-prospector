@@ -15,7 +15,7 @@ const Tools = () => {
     <div className="p-6 max-w-[1600px] mx-auto space-y-10 pb-32">
       
       {/* --- HERO SECTION --- */}
-      <div className="relative overflow-hidden rounded-[3rem] bg-slate-950 p-12 border border-white/10 shadow-2xl">
+      <div className="relative overflow-hidden rounded-[3rem] bg-slate-950/40  p-12 border border-white/10 shadow-2xl">
         <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/20 to-transparent opacity-50" />
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-end gap-8">
           <div className="space-y-4">
@@ -53,8 +53,8 @@ const Tools = () => {
           >
             <Cloud className="h-6 w-6" />
             <div>
-              <p className="font-black uppercase text-xs tracking-wider">Cloud Platform</p>
-              <p className="text-lg font-black">BulkScraper.cloud</p>
+              <p className="font-black uppercase text-xs tracking-wider ">Lead Scraper from URL</p>
+              <p className="text-lg font-black">bulkscraper.cloud</p>
             </div>
           </button>
 
@@ -64,8 +64,8 @@ const Tools = () => {
           >
             <Chrome className="h-6 w-6" />
             <div>
-              <p className="font-black uppercase text-xs tracking-wider">Local Node</p>
-              <p className="text-lg font-black">People Search Ext.</p>
+              <p className="font-black uppercase text-xs tracking-wider">Chrome Extension</p>
+              <p className="text-lg font-black">People Search</p>
             </div>
           </button>
         </div>
@@ -141,11 +141,34 @@ const Tools = () => {
                       <p className="text-sm font-bold text-orange-500/80">Local Browser Automation Node • v1.0.0</p>
                     </div>
                   </div>
-                  <Button asChild variant="secondary" className="h-14 px-8 rounded-2xl font-black uppercase tracking-widest hover:bg-orange-600 hover:text-white transition-all">
-                    <a href="/people_search_extension_v1.zip">
-                      <Download className="mr-2 h-5 w-5" /> Download Build
-                    </a>
-                  </Button>
+              <Button
+  asChild
+  className="
+    relative
+    h-16 px-10
+    rounded-2xl
+    font-black uppercase tracking-widest
+    bg-orange-600 text-white
+    shadow-2xl shadow-orange-600/50
+    hover:bg-orange-500
+    hover:scale-[1.05]
+    transition-all
+
+    after:absolute after:inset-0
+    after:rounded-2xl
+    after:bg-orange-600/40
+    after:blur-xl
+    after:opacity-0
+    hover:after:opacity-100
+    after:transition-opacity
+  "
+>
+  <a href="/people_search_extension_v1.zip" className="relative z-10">
+    <Download className="mr-2 h-6 w-6" />
+    Download Extension
+  </a>
+</Button>
+
                 </div>
 
                 <div className="p-10 grid grid-cols-1 md:grid-cols-2 gap-12">
