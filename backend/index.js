@@ -380,44 +380,44 @@ const values = rows.map(row => {
 // Get data with filters
 app.get('/api/data', async (req, res) => {
   try {
-    const { status, batch, scraped_by, limit = 100, offset = 0 } = req.query;
+    const { status, batch, scraped_by, limit = 50, offset = 0 } = req.query;
     
     let query = 'SELECT d.*, u.username as scraped_by_name FROM data d LEFT JOIN user u ON d.scraped_by = u.id WHERE 1=1';
+    let countQuery = 'SELECT COUNT(*) as total FROM data d WHERE 1=1';
     const params = [];
+    const countParams = [];
 
+    // Filter by Status
     if (status === 'pending') {
       query += ' AND d.status IS NULL';
+      countQuery += ' AND d.status IS NULL';
     } else if (status && status !== 'all') {
       query += ' AND d.status = ?';
+      countQuery += ' AND d.status = ?';
       params.push(status);
+      countParams.push(status);
     }
 
+    // Filter by Batch
     if (batch && batch !== 'all') {
       query += ' AND d.batch = ?';
+      countQuery += ' AND d.batch = ?';
       params.push(batch);
+      countParams.push(batch);
     }
 
-    // ADDED THIS PART FOR USER FILTERING
-    if (scraped_by && scraped_by !== 'all') {
+    // Filter by User (THE FIX: Ensure we check 'all' string properly)
+    if (scraped_by && scraped_by !== 'all' && scraped_by !== 'undefined') {
       query += ' AND d.scraped_by = ?';
+      countQuery += ' AND d.scraped_by = ?';
       params.push(scraped_by);
+      countParams.push(scraped_by);
     }
 
     query += ' ORDER BY d.created_at DESC LIMIT ? OFFSET ?';
     params.push(parseInt(limit), parseInt(offset));
 
     const [rows] = await pool.query(query, params);
-    
-    // Total count for pagination
-    let countQuery = 'SELECT COUNT(*) as total FROM data WHERE 1=1';
-    const countParams = [];
-    
-    if (status === 'pending') { countQuery += ' AND status IS NULL'; } 
-    else if (status && status !== 'all') { countQuery += ' AND status = ?'; countParams.push(status); }
-    
-    if (batch && batch !== 'all') { countQuery += ' AND batch = ?'; countParams.push(batch); }
-    if (scraped_by && scraped_by !== 'all') { countQuery += ' AND scraped_by = ?'; countParams.push(scraped_by); }
-
     const [[{ total }]] = await pool.query(countQuery, countParams);
 
     res.json({ data: rows, total, limit: parseInt(limit), offset: parseInt(offset) });

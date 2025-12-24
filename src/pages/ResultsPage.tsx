@@ -45,16 +45,17 @@ const ResultsPage = () => {
   const [userFilter, setUserFilter] = useState("all");
   const [batchFilter, setBatchFilter] = useState("all");
 
-  // Intelligent Display Settings
-  const [topX, setTopX] = useState<number>(3); // How many to show
+  // Intelligent Display Settings - SEPARATE FOR EMAILS AND NUMBERS
+  const [topEmails, setTopEmails] = useState<number>(3);
+  const [topNumbers, setTopNumbers] = useState<number>(3);
   const [sortMethod, setSortMethod] = useState<"default" | "nameMatch">("nameMatch");
   const [selectedCols, setSelectedCols] = useState<string[]>(EXPORT_COLUMNS.map(c => c.id));
 
-  // Intelligent Email Processing Function
-  const processList = (rawString: string | null, name: string | null, type: 'email' | 'phone') => {
+  // Intelligent Email/Phone Processing Function
+  const processList = (rawString: string | null, name: string | null, type: 'email' | 'phone', topX: number) => {
     if (!rawString) return [];
     let items = rawString.split(',').map(s => s.trim()).filter(Boolean);
-
+    
     if (type === 'email' && sortMethod === 'nameMatch' && name) {
       const nameParts = name.toLowerCase().split(/\s+/).filter(p => p.length > 2);
       items.sort((a, b) => {
@@ -63,7 +64,7 @@ const ResultsPage = () => {
         return bMatch - aMatch; // Matches go to index 0
       });
     }
-
+    
     return items.slice(0, topX);
   };
 
@@ -74,7 +75,7 @@ const ResultsPage = () => {
       offset: page * limit,
       status: statusFilter,
       batch: batchFilter,
-      scraped_by: userFilter
+      scraped_by: userFilter // Pass the actual user ID
     });
     if (result.data) {
       setData(result.data.data);
@@ -92,16 +93,24 @@ const ResultsPage = () => {
     loadMetadata();
   }, []);
 
-  useEffect(() => { fetchData(); }, [statusFilter, userFilter, batchFilter, page]);
+  useEffect(() => { 
+    setPage(0); // Reset to page 0 when filters change
+  }, [statusFilter, userFilter, batchFilter]);
+
+  useEffect(() => { 
+    fetchData(); 
+  }, [statusFilter, userFilter, batchFilter, page]);
 
   const handleExport = async () => {
     toast.info("Preparing Excel Export...");
     const result = await dataApi.getAll({ 
-      status: statusFilter, batch: batchFilter, scraped_by: userFilter, limit: 5000 
+      status: statusFilter, 
+      batch: batchFilter, 
+      scraped_by: userFilter, 
+      limit: 5000 
     });
     
     if (!result.data) return;
-
     const exportData = result.data.data.map(row => {
       const obj: any = {};
       selectedCols.forEach(colId => {
@@ -110,8 +119,10 @@ const ResultsPage = () => {
         
         // Apply Top X logic even to Excel if desired
         let value = (row as any)[colId];
-        if (colId === 'scraped_emails' || colId === 'scraped_numbers') {
-          value = processList(value, row.scraped_name, colId === 'scraped_emails' ? 'email' : 'phone').join(', ');
+        if (colId === 'scraped_emails') {
+          value = processList(value, row.scraped_name, 'email', topEmails).join(', ');
+        } else if (colId === 'scraped_numbers') {
+          value = processList(value, null, 'phone', topNumbers).join(', ');
         }
         obj[colDef.label] = value || "";
       });
@@ -132,7 +143,6 @@ const ResultsPage = () => {
           <h1 className="text-2xl font-bold tracking-tight">Data Results</h1>
           <p className="text-muted-foreground text-sm">Review, filter, and export scraped property data.</p>
         </div>
-
         <div className="flex flex-wrap items-center gap-2">
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[120px] h-9"><SelectValue placeholder="Status" /></SelectTrigger>
@@ -148,7 +158,7 @@ const ResultsPage = () => {
             <SelectTrigger className="w-[130px] h-9"><SelectValue placeholder="Scraped By" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Users</SelectItem>
-              {users.map(u => <SelectItem key={u.id} value={u.id.toString()}>{u.username}</SelectItem>)}
+              {users.map(u => <SelectItem key={u.id} value={String(u.id)}>{u.username}</SelectItem>)}
             </SelectContent>
           </Select>
 
@@ -173,7 +183,7 @@ const ResultsPage = () => {
                 <SortAsc className="h-4 w-4" /> Display Logic
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-64 p-4 space-y-4" align="end">
+            <PopoverContent className="w-72 p-4 space-y-4" align="end">
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase text-muted-foreground">Email Sorting</label>
                 <Select value={sortMethod} onValueChange={(v: any) => setSortMethod(v)}>
@@ -186,13 +196,32 @@ const ResultsPage = () => {
                   </SelectContent>
                 </Select>
               </div>
+
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase text-muted-foreground">Show Top Results</label>
+                <label className="text-xs font-bold uppercase text-muted-foreground flex items-center gap-2">
+                  <Mail className="h-3 w-3" /> Show Top Emails
+                </label>
                 <div className="flex items-center gap-2">
                   <Input 
                     type="number" 
-                    value={topX} 
-                    onChange={(e) => setTopX(Number(e.target.value))} 
+                    value={topEmails} 
+                    onChange={(e) => setTopEmails(Math.max(1, Math.min(50, Number(e.target.value))))} 
+                    className="h-8 w-20 text-xs"
+                    min={1} max={50}
+                  />
+                  <span className="text-[10px] text-muted-foreground italic">per record</span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase text-muted-foreground flex items-center gap-2">
+                  <Phone className="h-3 w-3" /> Show Top Numbers
+                </label>
+                <div className="flex items-center gap-2">
+                  <Input 
+                    type="number" 
+                    value={topNumbers} 
+                    onChange={(e) => setTopNumbers(Math.max(1, Math.min(50, Number(e.target.value))))} 
                     className="h-8 w-20 text-xs"
                     min={1} max={50}
                   />
@@ -210,7 +239,11 @@ const ResultsPage = () => {
               <div className="max-h-60 overflow-y-auto">
                 {EXPORT_COLUMNS.map(col => (
                   <div key={col.id} className="flex items-center space-x-2 p-1 hover:bg-muted rounded text-xs cursor-pointer">
-                    <Checkbox id={col.id} checked={selectedCols.includes(col.id)} onCheckedChange={(c) => setSelectedCols(p => c ? [...p, col.id] : p.filter(x => x !== col.id))} />
+                    <Checkbox 
+                      id={col.id} 
+                      checked={selectedCols.includes(col.id)} 
+                      onCheckedChange={(c) => setSelectedCols(p => c ? [...p, col.id] : p.filter(x => x !== col.id))} 
+                    />
                     <label htmlFor={col.id} className="flex-1 cursor-pointer">{col.label}</label>
                   </div>
                 ))}
@@ -275,7 +308,6 @@ const ResultsPage = () => {
                               <User className="h-3 w-3" /> {row.scraped_name}
                             </div>
                           )}
-
                           <div className="grid grid-cols-1 gap-3">
                             {/* Emails */}
                             <div className="space-y-1.5">
@@ -288,7 +320,7 @@ const ResultsPage = () => {
                                     </div>
                                   )}
                                   {/* Top Scraped Emails */}
-                                  {processList(row.scraped_emails, row.scraped_name, 'email')
+                                  {processList(row.scraped_emails, row.scraped_name, 'email', topEmails)
                                     .filter(email => email !== row.best_email)
                                     .map((email, i) => (
                                       <div key={i} className="flex items-center gap-1.5 bg-muted px-2 py-0.5 rounded text-[11px] text-muted-foreground border border-transparent">
@@ -298,7 +330,6 @@ const ResultsPage = () => {
                                 </div>
                               ) : <p className="text-[10px] text-muted-foreground">No emails found</p>}
                             </div>
-
                             {/* Numbers */}
                             <div className="space-y-1.5">
                               {(row.best_number || row.scraped_numbers) ? (
@@ -308,7 +339,7 @@ const ResultsPage = () => {
                                       <Phone className="h-3 w-3" /> {row.best_number} <Star className="h-2.5 w-2.5 fill-current" />
                                     </div>
                                   )}
-                                  {processList(row.scraped_numbers, null, 'phone')
+                                  {processList(row.scraped_numbers, null, 'phone', topNumbers)
                                     .filter(n => n !== row.best_number)
                                     .map((num, i) => (
                                       <div key={i} className="flex items-center gap-1.5 bg-muted px-2 py-0.5 rounded text-[11px] text-muted-foreground">
@@ -328,6 +359,7 @@ const ResultsPage = () => {
                           <a 
                             href={row.profile_url} 
                             target="_blank" 
+                            rel="noopener noreferrer"
                             className="inline-flex items-center gap-1 text-primary hover:underline text-xs font-medium"
                           >
                             Source <ExternalLink className="h-3 w-3" />
@@ -368,7 +400,7 @@ const ResultsPage = () => {
       {/* Modern Pagination */}
       <div className="flex items-center justify-between px-2">
         <p className="text-xs text-muted-foreground italic">
-          Total results: <b>{total}</b> • Page {page + 1} of {Math.ceil(total / limit)}
+          Total results: <b>{total}</b> • Page {page + 1} of {Math.ceil(total / limit) || 1}
         </p>
         <div className="flex gap-1">
           <Button variant="outline" size="sm" onClick={() => setPage(0)} disabled={page === 0} className="h-8">First</Button>
