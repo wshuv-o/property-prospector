@@ -1,14 +1,16 @@
 // src\pages\Index.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Upload, Trash2, FileSpreadsheet, Database } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Upload, Trash2, FileSpreadsheet, Database, AlertCircle, PlusCircle, List } from "lucide-react";
 import { toast } from "sonner";
-import { dataApi } from "@/lib/api";
+import { dataApi, Batch } from "@/lib/api";
 import * as XLSX from "xlsx";
 
 interface DataEntry {
@@ -21,8 +23,44 @@ const Index = () => {
   const [nameInput, setNameInput] = useState("");
   const [addressInput, setAddressInput] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  
+  // Batch State
+  const [batches, setBatches] = useState<Batch[]>([]);
+  const [batchMode, setBatchMode] = useState<"existing" | "new">("new");
+  const [selectedBatch, setSelectedBatch] = useState<string>("");
+  const [newBatchName, setNewBatchName] = useState<string>("");
+  const [batchError, setBatchError] = useState<string>("");
 
-  // Add entries from textareas
+  useEffect(() => {
+    loadBatches();
+  }, []);
+
+  const loadBatches = async () => {
+    const result = await dataApi.getBatches();
+    if (result.data) {
+      setBatches(result.data);
+    }
+  };
+
+  // Validation logic for batch name
+  const validateBatchName = (name: string) => {
+    if (!name) return "Batch name is required";
+    if (/\s/.test(name)) return "Batch name cannot contain spaces";
+    if (batches.some(b => b.batch_code.toLowerCase() === name.toLowerCase())) {
+      return "This batch name already exists";
+    }
+    return "";
+  };
+
+  const handleNewBatchChange = (val: string) => {
+    setNewBatchName(val);
+    if (batchMode === "new") {
+      setBatchError(validateBatchName(val));
+    } else {
+      setBatchError("");
+    }
+  };
+
   const handleAddEntry = () => {
     if (!nameInput.trim() && !addressInput.trim()) {
       toast.error("Please enter name or address");
@@ -50,7 +88,6 @@ const Index = () => {
     }
   };
 
-  // Handle Excel file upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -64,7 +101,6 @@ const Index = () => {
         const sheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as string[][];
         
-        // Skip header row, first column = address, second = name
         const newEntries: DataEntry[] = [];
         for (let i = 1; i < jsonData.length; i++) {
           const row = jsonData[i];
@@ -86,32 +122,49 @@ const Index = () => {
     e.target.value = '';
   };
 
-  // Remove entry
   const handleRemoveEntry = (index: number) => {
     setEntries(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Clear all
   const handleClearAll = () => {
     setEntries([]);
     toast.info("All entries cleared");
   };
 
-  // Upload to database
   const handleUploadToDb = async () => {
+    // 1. Check Entries
     if (entries.length === 0) {
       toast.error("No entries to upload");
       return;
     }
 
+    // 2. Check Batch
+    const finalBatchName = batchMode === "existing" ? selectedBatch : newBatchName;
+    
+    if (!finalBatchName) {
+      toast.error("Please select or create a batch");
+      return;
+    }
+
+    if (batchMode === "new") {
+      const error = validateBatchName(newBatchName);
+      if (error) {
+        setBatchError(error);
+        toast.error(error);
+        return;
+      }
+    }
+
     setIsUploading(true);
     try {
-      const result = await dataApi.upload(entries);
+      const result = await dataApi.upload(entries, finalBatchName);
       if (result.error) {
         toast.error(result.error);
       } else {
-        toast.success(`Uploaded ${result.data?.insertedCount} entries to database`);
+        toast.success(`Uploaded ${result.data?.insertedCount} entries to batch: ${finalBatchName}`);
         setEntries([]);
+        setNewBatchName("");
+        loadBatches(); // Refresh batch list
       }
     } catch (error) {
       toast.error("Failed to upload data");
@@ -122,20 +175,22 @@ const Index = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-foreground">Upload Data</h1>
-        <p className="text-muted-foreground mt-1">
-          Paste data from Excel or upload a file to add entries for scraping
-        </p>
+      <div className="flex justify-between items-end">
+        <div>
+          <h1 className="text-2xl font-semibold text-foreground">Upload Data</h1>
+          <p className="text-muted-foreground mt-1">
+            Assign data to a batch and prepare for scraping
+          </p>
+        </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Input Section */}
-        <Card className="border-border/40">
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Left: Input Section */}
+        <Card className="lg:col-span-2 border-border/40">
           <CardHeader className="pb-4">
             <CardTitle className="text-lg flex items-center gap-2">
               <FileSpreadsheet className="h-5 w-5 text-primary" />
-              Add Entries
+              1. Add Content
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -147,7 +202,7 @@ const Index = () => {
                   placeholder="Paste addresses here (one per line)"
                   value={addressInput}
                   onChange={(e) => setAddressInput(e.target.value)}
-                  className="min-h-[120px] resize-none"
+                  className="min-h-[150px] resize-none"
                 />
               </div>
               <div className="space-y-2">
@@ -157,14 +212,14 @@ const Index = () => {
                   placeholder="Paste names here (one per line)"
                   value={nameInput}
                   onChange={(e) => setNameInput(e.target.value)}
-                  className="min-h-[120px] resize-none"
+                  className="min-h-[150px] resize-none"
                 />
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 pt-2">
               <Button onClick={handleAddEntry} variant="secondary">
-                Add Entry
+                Add to List
               </Button>
               <div className="relative">
                 <Input
@@ -182,35 +237,96 @@ const Index = () => {
           </CardContent>
         </Card>
 
-        {/* Stats Card */}
-        <Card className="border-border/40">
+        {/* Right: Batch & Upload Section */}
+        <Card className="border-border/40 flex flex-col">
           <CardHeader className="pb-4">
             <CardTitle className="text-lg flex items-center gap-2">
               <Database className="h-5 w-5 text-primary" />
-              Ready to Upload
+              2. Batch & Process
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-center py-6">
-              <div className="text-5xl font-bold text-primary">{entries.length}</div>
-              <p className="text-muted-foreground mt-2">entries ready</p>
+          <CardContent className="space-y-6 flex-1">
+            <div className="space-y-4">
+              <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
+                Select Destination Batch
+              </Label>
+              <Tabs 
+                defaultValue="new" 
+                onValueChange={(v) => setBatchMode(v as "existing" | "new")}
+                className="w-full"
+              >
+                <TabsList className="grid w-full grid-cols-2 h-10">
+                  <TabsTrigger value="new" className="gap-2">
+                    <PlusCircle className="h-4 w-4" /> New
+                  </TabsTrigger>
+                  <TabsTrigger value="existing" className="gap-2">
+                    <List className="h-4 w-4" /> Existing
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="new" className="mt-4 space-y-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="newBatch">New Batch Name</Label>
+                    <Input 
+                      id="newBatch"
+                      placeholder="e.g. Florida_Dec_24"
+                      value={newBatchName}
+                      onChange={(e) => handleNewBatchChange(e.target.value)}
+                      className={batchError ? "border-destructive focus-visible:ring-destructive" : ""}
+                    />
+                    {batchError && (
+                      <p className="text-[10px] text-destructive flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" /> {batchError}
+                      </p>
+                    )}
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="existing" className="mt-4 space-y-3">
+                  <div className="space-y-2">
+                    <Label>Choose Batch</Label>
+                    <Select value={selectedBatch} onValueChange={setSelectedBatch}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a batch..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {batches.map(b => (
+                          <SelectItem key={b.id} value={b.batch_code}>
+                            {b.batch_code} ({b.total_rows} rows)
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </TabsContent>
+              </Tabs>
             </div>
 
-            <div className="flex gap-2">
-              <Button 
-                onClick={handleUploadToDb} 
-                className="flex-1"
-                disabled={entries.length === 0 || isUploading}
-              >
-                {isUploading ? "Uploading..." : "Upload to Database"}
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={handleClearAll}
-                disabled={entries.length === 0}
-              >
-                Clear All
-              </Button>
+            <div className="pt-4 border-t border-dashed border-border/60">
+              <div className="text-center mb-6">
+                <div className="text-4xl font-bold text-primary">{entries.length}</div>
+                <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mt-1">
+                  Entries in queue
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Button 
+                  onClick={handleUploadToDb} 
+                  className="w-full h-11"
+                  disabled={entries.length === 0 || isUploading || (batchMode === "new" && !!batchError)}
+                >
+                  {isUploading ? "Processing..." : "Commit to Database"}
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  onClick={handleClearAll}
+                  disabled={entries.length === 0}
+                  className="text-muted-foreground hover:text-destructive"
+                >
+                  Discard All
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -219,12 +335,12 @@ const Index = () => {
       {/* Preview Table */}
       {entries.length > 0 && (
         <Card className="border-border/40">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg">Preview ({entries.length} entries)</CardTitle>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-md font-medium">Data Preview</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="rounded-md border border-border/40 overflow-hidden">
-              <div className="max-h-[400px] overflow-auto">
+              <div className="max-h-[300px] overflow-auto">
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted/30">
@@ -238,13 +354,13 @@ const Index = () => {
                     {entries.map((entry, index) => (
                       <TableRow key={index}>
                         <TableCell className="text-muted-foreground">{index + 1}</TableCell>
-                        <TableCell className="font-mono text-sm">{entry.address || '-'}</TableCell>
-                        <TableCell>{entry.name || '-'}</TableCell>
+                        <TableCell className="font-mono text-xs">{entry.address || '-'}</TableCell>
+                        <TableCell className="text-sm">{entry.name || '-'}</TableCell>
                         <TableCell>
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            className="h-7 w-7 text-muted-foreground hover:text-destructive"
                             onClick={() => handleRemoveEntry(index)}
                           >
                             <Trash2 className="h-4 w-4" />
