@@ -27,7 +27,7 @@ const Index = () => {
   // Batch State
   const [batches, setBatches] = useState<Batch[]>([]);
   const [batchMode, setBatchMode] = useState<"existing" | "new">("new");
-  const [selectedBatch, setSelectedBatch] = useState<string>("");
+  const [selectedBatchCode, setSelectedBatchCode] = useState<string>(""); // CHANGED: Now stores batch_code directly
   const [newBatchName, setNewBatchName] = useState<string>("");
   const [batchError, setBatchError] = useState<string>("");
 
@@ -46,6 +46,9 @@ const Index = () => {
   const validateBatchName = (name: string) => {
     if (!name) return "Batch name is required";
     if (/\s/.test(name)) return "Batch name cannot contain spaces";
+    if (name.length < 3) return "Batch name must be at least 3 characters";
+    if (name.length > 50) return "Batch name must be less than 50 characters";
+    if (!/^[a-zA-Z0-9_-]+$/.test(name)) return "Only letters, numbers, hyphens, and underscores allowed";
     if (batches.some(b => b.batch_code.toLowerCase() === name.toLowerCase())) {
       return "This batch name already exists";
     }
@@ -138,14 +141,15 @@ const Index = () => {
       return;
     }
 
-    // 2. Check Batch
-    const finalBatchName = batchMode === "existing" ? selectedBatch : newBatchName;
+    // 2. Get Final Batch Code (FIXED)
+    const finalBatchName = batchMode === "existing" ? selectedBatchCode : newBatchName;
     
     if (!finalBatchName) {
-      toast.error("Please select or create a batch");
+      toast.error(batchMode === "existing" ? "Please select a batch" : "Please enter a batch name");
       return;
     }
 
+    // 3. Validate if creating new batch
     if (batchMode === "new") {
       const error = validateBatchName(newBatchName);
       if (error) {
@@ -157,14 +161,25 @@ const Index = () => {
 
     setIsUploading(true);
     try {
+      // IMPORTANT: Pass the batch CODE (name), not ID
       const result = await dataApi.upload(entries, finalBatchName);
+      
       if (result.error) {
         toast.error(result.error);
       } else {
-        toast.success(`Uploaded ${result.data?.insertedCount} entries to batch: ${finalBatchName}`);
+        toast.success(
+          `✅ Uploaded ${result.data?.insertedCount} entries to batch: ${finalBatchName}`,
+          { duration: 4000 }
+        );
+        
+        // Clear entries and reset form
         setEntries([]);
         setNewBatchName("");
-        loadBatches(); // Refresh batch list
+        setSelectedBatchCode("");
+        setBatchError("");
+        
+        // Reload batches
+        loadBatches();
       }
     } catch (error) {
       toast.error("Failed to upload data");
@@ -251,8 +266,11 @@ const Index = () => {
                 Select Destination Batch
               </Label>
               <Tabs 
-                defaultValue="new" 
-                onValueChange={(v) => setBatchMode(v as "existing" | "new")}
+                value={batchMode} 
+                onValueChange={(v) => {
+                  setBatchMode(v as "existing" | "new");
+                  setBatchError("");
+                }}
                 className="w-full"
               >
                 <TabsList className="grid w-full grid-cols-2 h-10">
@@ -279,24 +297,45 @@ const Index = () => {
                         <AlertCircle className="h-3 w-3" /> {batchError}
                       </p>
                     )}
+                    {!batchError && newBatchName && (
+                      <p className="text-[10px] text-emerald-600 flex items-center gap-1">
+                        ✓ Valid batch name
+                      </p>
+                    )}
                   </div>
                 </TabsContent>
 
                 <TabsContent value="existing" className="mt-4 space-y-3">
                   <div className="space-y-2">
                     <Label>Choose Batch</Label>
-                    <Select value={selectedBatch} onValueChange={setSelectedBatch}>
+                    <Select value={selectedBatchCode} onValueChange={setSelectedBatchCode}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a batch..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {batches.map(b => (
-                          <SelectItem key={b.id} value={b.batch_code}>
-                            {b.batch_code} ({b.total_rows} rows)
-                          </SelectItem>
-                        ))}
+                        {batches.length === 0 ? (
+                          <div className="p-2 text-xs text-muted-foreground text-center">
+                            No batches available
+                          </div>
+                        ) : (
+                          batches.map(b => (
+                            <SelectItem key={b.id} value={b.batch_code}>
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono">{b.batch_code}</span>
+                                <span className="text-[10px] text-muted-foreground">
+                                  ({b.total_rows} rows, {b.pending} pending)
+                                </span>
+                              </div>
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
+                    {selectedBatchCode && (
+                      <p className="text-[10px] text-blue-600 flex items-center gap-1">
+                        ✓ Will add to: <strong className="font-mono">{selectedBatchCode}</strong>
+                      </p>
+                    )}
                   </div>
                 </TabsContent>
               </Tabs>
@@ -314,7 +353,12 @@ const Index = () => {
                 <Button 
                   onClick={handleUploadToDb} 
                   className="w-full h-11"
-                  disabled={entries.length === 0 || isUploading || (batchMode === "new" && !!batchError)}
+                  disabled={
+                    entries.length === 0 || 
+                    isUploading || 
+                    (batchMode === "new" && (!!batchError || !newBatchName)) ||
+                    (batchMode === "existing" && !selectedBatchCode)
+                  }
                 >
                   {isUploading ? "Processing..." : "Commit to Database"}
                 </Button>
