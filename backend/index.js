@@ -380,21 +380,27 @@ const values = rows.map(row => {
 // Get data with filters
 app.get('/api/data', async (req, res) => {
   try {
-    const { status, batch, limit = 100, offset = 0 } = req.query;
+    const { status, batch, scraped_by, limit = 100, offset = 0 } = req.query;
     
     let query = 'SELECT d.*, u.username as scraped_by_name FROM data d LEFT JOIN user u ON d.scraped_by = u.id WHERE 1=1';
     const params = [];
 
     if (status === 'pending') {
       query += ' AND d.status IS NULL';
-    } else if (status) {
+    } else if (status && status !== 'all') {
       query += ' AND d.status = ?';
       params.push(status);
     }
 
-    if (batch) {
+    if (batch && batch !== 'all') {
       query += ' AND d.batch = ?';
       params.push(batch);
+    }
+
+    // ADDED THIS PART FOR USER FILTERING
+    if (scraped_by && scraped_by !== 'all') {
+      query += ' AND d.scraped_by = ?';
+      params.push(scraped_by);
     }
 
     query += ' ORDER BY d.created_at DESC LIMIT ? OFFSET ?';
@@ -402,21 +408,15 @@ app.get('/api/data', async (req, res) => {
 
     const [rows] = await pool.query(query, params);
     
-    // Get total count
+    // Total count for pagination
     let countQuery = 'SELECT COUNT(*) as total FROM data WHERE 1=1';
     const countParams = [];
     
-    if (status === 'pending') {
-      countQuery += ' AND status IS NULL';
-    } else if (status) {
-      countQuery += ' AND status = ?';
-      countParams.push(status);
-    }
+    if (status === 'pending') { countQuery += ' AND status IS NULL'; } 
+    else if (status && status !== 'all') { countQuery += ' AND status = ?'; countParams.push(status); }
     
-    if (batch) {
-      countQuery += ' AND batch = ?';
-      countParams.push(batch);
-    }
+    if (batch && batch !== 'all') { countQuery += ' AND batch = ?'; countParams.push(batch); }
+    if (scraped_by && scraped_by !== 'all') { countQuery += ' AND scraped_by = ?'; countParams.push(scraped_by); }
 
     const [[{ total }]] = await pool.query(countQuery, countParams);
 
