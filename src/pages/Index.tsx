@@ -201,7 +201,7 @@ const Index = () => {
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left: Input Section */}
-        <Card className="lg:col-span-2 border-border/40">
+        <Card className="lg:col-span-2 border-border/40 ">
           <CardHeader className="pb-4">
             <CardTitle className="text-lg flex items-center gap-2">
               <FileSpreadsheet className="h-5 w-5 text-primary" />
@@ -253,7 +253,8 @@ const Index = () => {
         </Card>
 
         {/* Right: Batch & Upload Section */}
-        <Card className="border-border/40 flex flex-col">
+        <Card className="border-border/40 flex flex-col shadow-2xl bg-background/40 backdrop-blur-xl
+                shadow-[0_8px_32px_rgba(0,0,0,0.25)]">
           <CardHeader className="pb-4">
             <CardTitle className="text-lg flex items-center gap-2">
               <Database className="h-5 w-5 text-primary" />
@@ -378,7 +379,8 @@ const Index = () => {
 
       {/* Preview Table */}
       {entries.length > 0 && (
-        <Card className="border-border/40">
+        <Card className="border-border/40 shadow-2xl bg-background/40 backdrop-blur-2xl
+                shadow-[0_8px_32px_rgba(0,0,0,0.25)]">
           <CardHeader className="pb-2">
             <CardTitle className="text-md font-medium">Data Preview</CardTitle>
           </CardHeader>

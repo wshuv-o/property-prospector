@@ -258,7 +258,8 @@ const ResultsPage = () => {
         </div>
       </div>
 
-      <Card className="border-border/40 shadow-sm overflow-hidden">
+      <Card className="border-border/40 overflow-hidden shadow-2xl bg-background/40 backdrop-blur-2xl
+                shadow-[0_8px_32px_rgba(0,0,0,0.25)]">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>
