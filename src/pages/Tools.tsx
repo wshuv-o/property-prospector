@@ -22,9 +22,10 @@ const Tools = () => {
             <Badge className="bg-primary/20 text-primary border-primary/30 px-4 py-1 rounded-full uppercase tracking-widest text-[10px] font-black">
               Production Environment
             </Badge>
-            <h1 className="text-6xl font-black tracking-tighter text-white leading-none">
-              PRODUCT <br/><span className="text-primary">COMMONSPACE</span>
-            </h1>
+            
+            <h1 className="text-4xl font-black tracking-tight bg-gradient-to-br from-foreground via-primary to-blue-700 bg-clip-text text-transparent">
+            PRODUCT COMMONSPACE
+          </h1>
             <p className="text-slate-400 max-w-xl text-lg font-medium">
               Centrally managed ecosystem for the Property Prospector suite. 
               Access cloud platforms and local automation nodes.
@@ -120,7 +121,7 @@ const Tools = () => {
                               <Badge className="bg-blue-500/20 text-blue-400 border-none">Secure</Badge>
                               <Badge className="bg-purple-500/20 text-purple-400 border-none">AI-Powered</Badge>
                            </div>
-                           <p className="text-xs text-slate-500 font-mono">protocol://cloud-sync.active</p>
+                           <p className="text-xs text-slate-500 font-mono">https://bulkscraper.cloud</p>
                         </div>
                      </div>
                   </div>
