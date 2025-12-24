@@ -1,7 +1,5 @@
-// F:\Imtiaj Sajin\property-prospector\backend\index.js
 const bcrypt = require('bcrypt');
 require('dotenv').config();
-
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
@@ -22,7 +20,6 @@ const pool = mysql.createPool({
   queueLimit: 0
 });
 
-
 // Health check
 app.get('/api/health', async (req, res) => {
   try {
@@ -34,7 +31,6 @@ app.get('/api/health', async (req, res) => {
 });
 
 // ============ USER ENDPOINTS ============
-
 // Get all users
 app.get('/api/users', async (req, res) => {
   try {
@@ -51,13 +47,11 @@ app.get('/api/users', async (req, res) => {
 app.post('/api/users', async (req, res) => {
   try {
     const { username, pass } = req.body;
-
     if (!username || !pass) {
       return res.status(400).json({ error: 'Username and password required' });
     }
 
     const hashedPass = await bcrypt.hash(pass, 10);
-
     const [result] = await pool.query(
       'INSERT INTO user (username, pass) VALUES (?, ?)',
       [username, hashedPass]
@@ -80,7 +74,6 @@ app.post('/api/users', async (req, res) => {
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-
     if (!username || !password) {
       return res.status(400).json({ error: 'Username and password required' });
     }
@@ -122,20 +115,15 @@ app.delete('/api/users/:id', async (req, res) => {
   }
 });
 
-
 // ============ DATA ENDPOINTS ============
-
 // Get top N data rows (minimal fields for scraping)
 app.get('/api/data/top/:limit', async (req, res) => {
   try {
     let { limit } = req.params;
-
     limit = parseInt(limit, 10);
-
     if (isNaN(limit) || limit <= 0) {
       return res.status(400).json({ error: 'Invalid limit value' });
     }
-
     // Safety cap (optional but recommended)
     if (limit > 100) limit = 100;
 
@@ -161,12 +149,10 @@ app.get('/api/data/top/:limit', async (req, res) => {
   }
 });
 
-
 // Update scraped data (emails, numbers, user who worked)
 app.patch('/api/data/:id/update', async (req, res) => {
   try {
     const { id } = req.params;
-
     const {
       scraped_name,
       scraped_emails,
@@ -190,37 +176,30 @@ app.patch('/api/data/:id/update', async (req, res) => {
       fields.push('scraped_name = ?');
       values.push(scraped_name);
     }
-
     if (scraped_emails !== undefined) {
       fields.push('scraped_emails = ?');
       values.push(scraped_emails);
     }
-
     if (scraped_numbers !== undefined) {
       fields.push('scraped_numbers = ?');
       values.push(scraped_numbers);
     }
-
     if (best_email !== undefined) {
       fields.push('best_email = ?');
       values.push(best_email);
     }
-
     if (best_number !== undefined) {
       fields.push('best_number = ?');
       values.push(best_number);
     }
-
     if (status !== undefined) {
       fields.push('status = ?');
       values.push(status);
     }
-
     if (scrapped_from !== undefined) {
       fields.push('scrapped_from = ?');
       values.push(scrapped_from);
     }
-
     if (profile_url !== undefined) {
       fields.push('profile_url = ?');
       values.push(profile_url);
@@ -229,7 +208,6 @@ app.patch('/api/data/:id/update', async (req, res) => {
     // Always update who worked & time
     fields.push('scraped_by = ?');
     values.push(scraped_by);
-
     fields.push('scraped_at = NOW()');
 
     if (fields.length === 0) {
@@ -237,7 +215,6 @@ app.patch('/api/data/:id/update', async (req, res) => {
     }
 
     values.push(id);
-
     const [result] = await pool.query(
       `UPDATE data SET ${fields.join(', ')} WHERE id = ?`,
       values
@@ -255,16 +232,13 @@ app.patch('/api/data/:id/update', async (req, res) => {
 
 function parseAddress(address) {
   if (!address) return null;
-
   // Split by commas
   const parts = address.split(',').map(p => p.trim());
-
   if (parts.length < 3) return null;
 
   const street = parts[0];                // 2009 Alston Ave
   const city = parts[1];                  // Fort Worth
   const stateZip = parts[2].split(' ');   // TX 76110
-
   const state = stateZip[0];
   const zip = stateZip[1] || '';
 
@@ -294,7 +268,6 @@ function buildTruePeopleSearchUrl(address) {
   if (!parsed) return null;
 
   const { street, city, state, zip } = parsed;
-
   const streetEncoded = encodeURIComponent(street);
   const cityStateZipEncoded = encodeURIComponent(`${city}, ${state} ${zip}`);
 
@@ -306,25 +279,21 @@ function buildFastPeopleSearchUrl(address) {
 
   // Replace the first comma+space with underscore
   let urlPart = address.replace(', ', '_');
-
   // Replace the second comma+space (if any) with hyphen
   const commaIndex = urlPart.indexOf(', ');
   if (commaIndex !== -1) {
     urlPart = urlPart.replace(', ', '-');
   }
-
   // Replace remaining spaces with hyphens
   urlPart = urlPart.replace(/\s+/g, '-');
 
   return 'https://www.fastpeoplesearch.com/address/' + urlPart.toLowerCase();
 }
 
-
 // Upload data (batch insert)
 app.post('/api/data/upload', async (req, res) => {
   try {
     const { rows, batchCode } = req.body;
-
     if (!rows || !Array.isArray(rows) || rows.length === 0) {
       return res.status(400).json({ error: 'No data provided' });
     }
@@ -342,21 +311,20 @@ app.post('/api/data/upload', async (req, res) => {
     );
 
     // Prepare values for bulk insert
-const values = rows.map(row => {
-  const fastUrl = buildFastPeopleSearchUrl(row.address);
-  const truePeopleUrl = buildTruePeopleSearchUrl(row.address);
-  const searchPeopleFreeUrl = buildSearchPeopleFreeUrl(row.address);
+    const values = rows.map(row => {
+      const fastUrl = buildFastPeopleSearchUrl(row.address);
+      const truePeopleUrl = buildTruePeopleSearchUrl(row.address);
+      const searchPeopleFreeUrl = buildSearchPeopleFreeUrl(row.address);
 
-  return [
-    row.name || null,
-    row.address || null,
-    fastUrl,
-    truePeopleUrl,
-    searchPeopleFreeUrl,
-    batch
-  ];
-});
-
+      return [
+        row.name || null,
+        row.address || null,
+        fastUrl,
+        truePeopleUrl,
+        searchPeopleFreeUrl,
+        batch
+      ];
+    });
 
     const [result] = await pool.query(
       `
@@ -376,56 +344,79 @@ const values = rows.map(row => {
   }
 });
 
-
-// Get data with filters
+// Get data with filters - FIXED USER FILTERING
 app.get('/api/data', async (req, res) => {
   try {
-    const { status, batch, scraped_by, limit = 50, offset = 0 } = req.query;
+    const { status, batch, scraped_by, limit = 100, offset = 0 } = req.query;
     
     let query = 'SELECT d.*, u.username as scraped_by_name FROM data d LEFT JOIN user u ON d.scraped_by = u.id WHERE 1=1';
-    let countQuery = 'SELECT COUNT(*) as total FROM data d WHERE 1=1';
     const params = [];
-    const countParams = [];
 
-    // Filter by Status
+    // Status filter
     if (status === 'pending') {
       query += ' AND d.status IS NULL';
-      countQuery += ' AND d.status IS NULL';
     } else if (status && status !== 'all') {
       query += ' AND d.status = ?';
-      countQuery += ' AND d.status = ?';
       params.push(status);
-      countParams.push(status);
     }
 
-    // Filter by Batch
+    // Batch filter
     if (batch && batch !== 'all') {
       query += ' AND d.batch = ?';
-      countQuery += ' AND d.batch = ?';
       params.push(batch);
-      countParams.push(batch);
     }
 
-    // Filter by User (THE FIX: Ensure we check 'all' string properly)
-    if (scraped_by && scraped_by !== 'all' && scraped_by !== 'undefined') {
-      query += ' AND d.scraped_by = ?';
-      countQuery += ' AND d.scraped_by = ?';
-      params.push(scraped_by);
-      countParams.push(scraped_by);
+    // USER FILTER - FIXED: Parse as integer and filter properly
+    if (scraped_by && scraped_by !== 'all') {
+      const userId = parseInt(scraped_by, 10);
+      if (!isNaN(userId)) {
+        query += ' AND d.scraped_by = ?';
+        params.push(userId);
+      }
     }
 
     query += ' ORDER BY d.created_at DESC LIMIT ? OFFSET ?';
     params.push(parseInt(limit), parseInt(offset));
 
     const [rows] = await pool.query(query, params);
+    
+    // Total count for pagination - WITH SAME FILTERS
+    let countQuery = 'SELECT COUNT(*) as total FROM data d WHERE 1=1';
+    const countParams = [];
+    
+    if (status === 'pending') { 
+      countQuery += ' AND d.status IS NULL'; 
+    } else if (status && status !== 'all') { 
+      countQuery += ' AND d.status = ?'; 
+      countParams.push(status); 
+    }
+    
+    if (batch && batch !== 'all') { 
+      countQuery += ' AND d.batch = ?'; 
+      countParams.push(batch); 
+    }
+
+    // USER FILTER IN COUNT - FIXED
+    if (scraped_by && scraped_by !== 'all') { 
+      const userId = parseInt(scraped_by, 10);
+      if (!isNaN(userId)) {
+        countQuery += ' AND d.scraped_by = ?'; 
+        countParams.push(userId); 
+      }
+    }
+
     const [[{ total }]] = await pool.query(countQuery, countParams);
 
-    res.json({ data: rows, total, limit: parseInt(limit), offset: parseInt(offset) });
+    res.json({ 
+      data: rows, 
+      total, 
+      limit: parseInt(limit), 
+      offset: parseInt(offset) 
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
-
 
 // Get statistics
 app.get('/api/stats', async (req, res) => {
@@ -523,7 +514,6 @@ app.get('/api/batches', async (req, res) => {
 
 // =============================================
 // for bulkscraper.cloud (project1)
-
 // Log usage for a user
 app.post('/api/usage/log', async (req, res) => {
   try {
@@ -548,7 +538,7 @@ app.post('/api/usage/log', async (req, res) => {
 app.get('/api/usage/stats', async (req, res) => {
   try {
     const [rows] = await pool.query(`
-      SELECT u.username,b.user_id, b.base_url, b.pages_scraped, b.input_tokens, b.output_tokens, b.created_at 
+      SELECT u.username, b.user_id, b.base_url, b.pages_scraped, b.input_tokens, b.output_tokens, b.created_at 
       FROM bulk_usage b 
       JOIN user u ON b.user_id = u.id 
       ORDER BY b.created_at DESC
@@ -558,8 +548,6 @@ app.get('/api/usage/stats', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
-
 
 const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => {
