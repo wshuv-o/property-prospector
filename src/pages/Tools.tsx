@@ -47,16 +47,7 @@ const Tools = () => {
         
         {/* Navigation Sidebar */}
         <div className="lg:col-span-3 space-y-3">
-          <button 
-            onClick={() => setActiveTab("bulk")}
-            className={`w-full text-left p-6 rounded-3xl transition-all border-2 flex items-center gap-4 ${activeTab === 'bulk' ? 'bg-primary border-primary text-white shadow-xl shadow-primary/20' : 'bg-card border-transparent hover:border-muted-foreground/20 text-muted-foreground'}`}
-          >
-            <Cloud className="h-6 w-6" />
-            <div>
-              <p className="font-black uppercase text-xs tracking-wider ">Lead Scraper from URL</p>
-              <p className="text-lg font-black">bulkscraper.cloud</p>
-            </div>
-          </button>
+          
 
           <button 
             onClick={() => setActiveTab("extension")}
@@ -66,6 +57,17 @@ const Tools = () => {
             <div>
               <p className="font-black uppercase text-xs tracking-wider">Chrome Extension</p>
               <p className="text-lg font-black">People Search</p>
+            </div>
+          </button>
+
+          <button 
+            onClick={() => setActiveTab("bulk")}
+            className={`w-full text-left p-6 rounded-3xl transition-all border-2 flex items-center gap-4 ${activeTab === 'bulk' ? 'bg-primary border-primary text-white shadow-xl shadow-primary/20' : 'bg-card border-transparent hover:border-muted-foreground/20 text-muted-foreground'}`}
+          >
+            <Cloud className="h-6 w-6" />
+            <div>
+              <p className="font-black uppercase text-xs tracking-wider ">Lead Scraper from URL</p>
+              <p className="text-lg font-black">bulkscraper.cloud</p>
             </div>
           </button>
         </div>
@@ -142,32 +144,32 @@ const Tools = () => {
                     </div>
                   </div>
               <Button
-  asChild
-  className="
-    relative
-    h-16 px-10
-    rounded-2xl
-    font-black uppercase tracking-widest
-    bg-orange-600 text-white
-    shadow-2xl shadow-orange-600/50
-    hover:bg-orange-500
-    hover:scale-[1.05]
-    transition-all
+                asChild
+                className="
+                  relative
+                  h-16 px-10
+                  rounded-2xl
+                  font-black uppercase tracking-widest
+                  bg-orange-600 text-white
+                  shadow-2xl shadow-orange-600/50
+                  hover:bg-orange-500
+                  hover:scale-[1.05]
+                  transition-all
 
-    after:absolute after:inset-0
-    after:rounded-2xl
-    after:bg-orange-600/40
-    after:blur-xl
-    after:opacity-0
-    hover:after:opacity-100
-    after:transition-opacity
-  "
->
-  <a href="/people_search_extension_v1.zip" className="relative z-10">
-    <Download className="mr-2 h-6 w-6" />
-    Download Extension
-  </a>
-</Button>
+                  after:absolute after:inset-0
+                  after:rounded-2xl
+                  after:bg-orange-600/40
+                  after:blur-xl
+                  after:opacity-0
+                  hover:after:opacity-100
+                  after:transition-opacity
+                "
+              >
+                <a href="/people_search_extension_v1.zip" className="relative z-10">
+                  <Download className="mr-2 h-6 w-6" />
+                  Download Extension
+                </a>
+              </Button>
 
                 </div>
 
