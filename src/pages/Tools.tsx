@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 
 const Tools = () => {
-  const [activeTab, setActiveTab] = useState<"bulk" | "extension">("bulk");
+  const [activeTab, setActiveTab] = useState<"bulk" | "extension">("extension");
 
   return (
     <div className="p-6 max-w-[1600px] mx-auto space-y-10 pb-32">
@@ -47,7 +47,16 @@ const Tools = () => {
         
         {/* Navigation Sidebar */}
         <div className="lg:col-span-3 space-y-3">
-          
+          <button 
+            onClick={() => setActiveTab("bulk")}
+            className={`w-full text-left p-6 rounded-3xl transition-all border-2 flex items-center gap-4 ${activeTab === 'bulk' ? 'bg-primary border-primary text-white shadow-xl shadow-primary/20' : 'bg-card border-transparent hover:border-muted-foreground/20 text-muted-foreground'}`}
+          >
+            <Cloud className="h-6 w-6" />
+            <div>
+              <p className="font-black uppercase text-xs tracking-wider ">Lead Scraper from URL</p>
+              <p className="text-lg font-black">bulkscraper.cloud</p>
+            </div>
+          </button>
 
           <button 
             onClick={() => setActiveTab("extension")}
@@ -57,17 +66,6 @@ const Tools = () => {
             <div>
               <p className="font-black uppercase text-xs tracking-wider">Chrome Extension</p>
               <p className="text-lg font-black">People Search</p>
-            </div>
-          </button>
-
-          <button 
-            onClick={() => setActiveTab("bulk")}
-            className={`w-full text-left p-6 rounded-3xl transition-all border-2 flex items-center gap-4 ${activeTab === 'bulk' ? 'bg-primary border-primary text-white shadow-xl shadow-primary/20' : 'bg-card border-transparent hover:border-muted-foreground/20 text-muted-foreground'}`}
-          >
-            <Cloud className="h-6 w-6" />
-            <div>
-              <p className="font-black uppercase text-xs tracking-wider ">Lead Scraper from URL</p>
-              <p className="text-lg font-black">bulkscraper.cloud</p>
             </div>
           </button>
         </div>
