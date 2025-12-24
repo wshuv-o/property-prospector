@@ -1,3 +1,5 @@
+// F:\Imtiaj Sajin\property-prospector\backend\index.js
+
 const bcrypt = require('bcrypt');
 require('dotenv').config();
 const express = require('express');
