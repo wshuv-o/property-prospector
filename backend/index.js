@@ -126,8 +126,15 @@ app.get('/api/data/top/:limit', async (req, res) => {
     if (isNaN(limit) || limit <= 0) {
       return res.status(400).json({ error: 'Invalid limit value' });
     }
-    // Safety cap (optional but recommended)
+
+    // Optional safety cap
     if (limit > 100) limit = 100;
+
+    // batch is now REQUIRED
+    const batch = req.query.batch ? req.query.batch.trim() : null;
+    if (!batch || batch === '') {
+      return res.status(400).json({ error: 'Missing or empty batch parameter' });
+    }
 
     const [rows] = await pool.query(
       `
@@ -139,10 +146,11 @@ app.get('/api/data/top/:limit', async (req, res) => {
         searchpeoplefree_url
       FROM data
       WHERE status IS NULL
+        AND batch = ?
       ORDER BY id ASC
       LIMIT ?
       `,
-      [limit]
+      [batch, limit]
     );
 
     res.json(rows);
@@ -513,6 +521,73 @@ app.get('/api/batches', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+// ============================shuvo==========================
+// GET /api/batch?limit=50  (default 50, max 100)
+app.get('/api/batch', async (req, res) => {
+  try {
+    let limit = 50; // default
+
+    if (req.query.limit) {
+      const requestedLimit = parseInt(req.query.limit, 10);
+      if (!isNaN(requestedLimit) && requestedLimit > 0) {
+        limit = Math.min(requestedLimit, 100); // optional safety cap
+      }
+    }
+
+    const [rows] = await pool.query(
+      `
+      SELECT *
+      FROM batch
+      ORDER BY created_at DESC
+      LIMIT ?
+      `,
+      [limit]
+    );
+
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// API 3: Get batch status summary (counts of pending, done, failed for a specific batch)
+// GET /api/batch/status?batch=ABC123
+app.get('/api/batch/status', async (req, res) => {
+  try {
+    // batch is REQUIRED
+    const batch = req.query.batch ? req.query.batch.trim() : null;
+    if (!batch || batch === '') {
+      return res.status(400).json({ error: 'Missing or empty batch parameter' });
+    }
+
+    const [rows] = await pool.query(
+      `
+      SELECT 
+        COUNT(*) AS total,
+        SUM(CASE WHEN status IS NULL THEN 1 ELSE 0 END) AS pending,
+        SUM(CASE WHEN status = 'done' THEN 1 ELSE 0 END) AS done,
+        SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) AS failed
+      FROM data
+      WHERE batch = ?
+      `,
+      [batch]
+    );
+
+    // rows will be an array with one object
+    const result = rows[0] || {
+      total: 0,
+      pending: 0,
+      done: 0,
+      failed: 0
+    };
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+//===============shuvo==========================
 
 // =============================================
 // for bulkscraper.cloud (project1)
