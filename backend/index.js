@@ -566,7 +566,7 @@ app.get('/api/batch/status', async (req, res) => {
         COUNT(*) AS total,
         SUM(CASE WHEN status IS NULL THEN 1 ELSE 0 END) AS pending,
         SUM(CASE WHEN status = 'done' THEN 1 ELSE 0 END) AS done,
-        SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) AS failed
+        SUM(CASE WHEN status = 'error' THEN 1 ELSE 0 END) AS error
       FROM data
       WHERE batch = ?
       `,
