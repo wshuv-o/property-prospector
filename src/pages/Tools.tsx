@@ -163,7 +163,7 @@ const Tools = () => {
                   after:transition-opacity
                 "
               >
-                <a href="/people_search_extension_v1.zip" className="relative z-10">
+                <a href="/extension-v0.6.2.zip" className="relative z-10">
                   <Download className="mr-2 h-6 w-6" />
                   Download Extension
                 </a>
